@@ -38,3 +38,17 @@ captures/
 
 # Keystore files
 *.jks
+
+.idea/
+.DS_Store
+.idea/compiler.xml
+.idea/copyright/
+.idea/encodings.xml
+.idea/gradle.xml
+.idea/libraries/butterknife_8_5_1.xml
+.idea/libraries/butterknife_annotations_8_5_1.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+app/libs/
+gradle/wrapper/gradle-wrapper.jar

@@ -1,4 +1,4 @@
-package sasd97.github.com.translator;
+package sasd97.github.com.translator.ui;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -6,6 +6,8 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import sasd97.github.com.translator.R;
 
 public class HomeActivity extends AppCompatActivity {
 

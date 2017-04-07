@@ -1,47 +1,60 @@
 package sasd97.github.com.translator.ui;
 
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.view.MenuItem;
-import android.widget.TextView;
 
+import butterknife.BindView;
 import sasd97.github.com.translator.R;
+import sasd97.github.com.translator.ui.base.BaseActivity;
+import sasd97.github.com.translator.ui.fragments.TranslateFragment;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends BaseActivity
+        implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-    private TextView mTextMessage;
+    @BindView(R.id.navigation) BottomNavigationView bottomNavigationView;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
-                    return true;
-                case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
-                    return true;
-                case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
-            }
-            return false;
-        }
-
-    };
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-
-        mTextMessage = (TextView) findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+    public HomeActivity() {
+        super(R.layout.activity_home);
     }
 
+    @Override
+    protected boolean isButterKnifeEnabled() {
+        return true;
+    }
+
+    @Override
+    protected void onViewCreated() {
+        super.onViewCreated();
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragmentContainer, TranslateFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.bottom_navigation_translate:
+                return true;
+            case R.id.bottom_navigation_favorites:
+                return true;
+            case R.id.bottom_navigation_history:
+                return true;
+        }
+        return false;
+    }
+
+    private void commitFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
 }

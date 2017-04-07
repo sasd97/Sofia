@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">Sofia</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+
+    <!-- Region Home Activity -->
+    <string name="bottom_navigation_translate_title">Translate</string>
+    <string name="bottom_navigation_favorites_title">Favorites</string>
+    <string name="bottom_navigation_history_title">History</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Endregion -->
+
 </resources>

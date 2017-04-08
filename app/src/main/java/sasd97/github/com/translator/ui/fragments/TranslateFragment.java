@@ -1,12 +1,15 @@
 package sasd97.github.com.translator.ui.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.rengwuxian.materialedittext.MaterialEditText;
 
 import butterknife.BindArray;
 import butterknife.BindString;
@@ -18,25 +21,29 @@ import sasd97.github.com.translator.http.HttpResultListener;
 import sasd97.github.com.translator.models.SupportedLanguageModel;
 import sasd97.github.com.translator.models.YandexTranslationModel;
 import sasd97.github.com.translator.ui.base.BaseFragment;
+import sasd97.github.com.translator.utils.StopTypingDetector;
 
 import static sasd97.github.com.translator.http.YandexAPIWrapper.translate;
 
 public class TranslateFragment extends BaseFragment
         implements AdapterView.OnItemSelectedListener,
-        HttpResultListener<YandexTranslationModel> {
+        HttpResultListener<YandexTranslationModel>,
+        StopTypingDetector.TypingListener {
 
     private String TAG = TranslateFragment.class.getCanonicalName();
 
+    private Handler handler;
+
+    private String[] fromLanguagesList;
     private SupportedLanguageModel targetLanguage;
     private SupportedLanguageModel destinationLanguage;
 
-    @BindView(R.id.translate_edittext) EditText translateEditText;
     @BindView(R.id.target_lang_sprinner) Spinner fromLanguageSpinner;
     @BindView(R.id.destination_lang_spinner) Spinner toLanguageSpinner;
+    @BindView(R.id.translate_edittext) MaterialEditText translateEditText;
 
     @BindString(R.string.automatic_lanugage) String automatic;
     @BindArray(R.array.languages) String[] array;
-    String[] fromLanguagesList;
 
     @Override
     protected int getLayout() {
@@ -55,6 +62,9 @@ public class TranslateFragment extends BaseFragment
     @Override
     protected void onViewCreated(Bundle state) {
         super.onViewCreated(state);
+        handler = new Handler();
+
+        translateEditText.addTextChangedListener(new StopTypingDetector(handler, this));
 
         fromLanguagesList = new String[array.length + 1];
         fromLanguagesList[0] = automatic;
@@ -71,13 +81,6 @@ public class TranslateFragment extends BaseFragment
         toAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         toLanguageSpinner.setAdapter(toAdapter);
         toLanguageSpinner.setOnItemSelectedListener(this);
-    }
-
-    @OnClick(R.id.button)
-    public void onClick(View view) {
-        translate(translateEditText.getText().toString(),
-                targetLanguage.getCortege(destinationLanguage),
-                this);
     }
 
     @OnClick(R.id.swap_frame_layout)
@@ -106,10 +109,18 @@ public class TranslateFragment extends BaseFragment
     }
 
     @Override
+    public void onStopTyping() {
+        translate(translateEditText.getText().toString(),
+                targetLanguage.getCortege(destinationLanguage),
+                this);
+    }
+
+    @Override
     public void onNothingSelected(AdapterView<?> adapterView) {}
 
     @Override
     public void onHttpSuccess(YandexTranslationModel result) {
+        if (result == null) return;
         Toast.makeText(getContext(), result.getText().get(0), Toast.LENGTH_SHORT).show();
     }
 

@@ -88,8 +88,8 @@ public class TranslateFragment extends BaseFragment
         targetLanguage = destinationLanguage;
         destinationLanguage = t;
 
-        int tempPosition = toLanguageSpinner.getSelectedItemPosition();
-        toLanguageSpinner.setSelection(fromLanguageSpinner.getSelectedItemPosition());
+        int tempPosition = toLanguageSpinner.getSelectedItemPosition() + 1;
+        toLanguageSpinner.setSelection(fromLanguageSpinner.getSelectedItemPosition() - 1);
         fromLanguageSpinner.setSelection(tempPosition);
     }
 

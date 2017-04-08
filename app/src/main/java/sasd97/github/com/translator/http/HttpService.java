@@ -11,7 +11,9 @@ import sasd97.github.com.translator.constants.YandexAPIConstants;
 public class HttpService {
 
     private static Retrofit retrofit;
-    private static YandexAPI yandexAPI;
+
+    private static YandexTranslatorAPI yandexTranslatorAPI;
+    private static YandexDictionaryAPI yandexDictionaryAPI;
 
     private HttpService() {}
 
@@ -19,14 +21,19 @@ public class HttpService {
 
         retrofit = new Retrofit
                 .Builder()
-                .baseUrl(YandexAPIConstants.BASE_SERVER_URL)
+                .baseUrl(YandexAPIConstants.SERVER_URL_TRANSLATOR)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        yandexAPI = retrofit.create(YandexAPI.class);
+        yandexTranslatorAPI = retrofit.create(YandexTranslatorAPI.class);
+        yandexDictionaryAPI = retrofit.create(YandexDictionaryAPI.class);
     }
 
-    public static YandexAPI yandexAPI() {
-        return yandexAPI;
+    public static YandexTranslatorAPI translatorAPI() {
+        return yandexTranslatorAPI;
+    }
+
+    public static YandexDictionaryAPI dictionaryAPI() {
+        return yandexDictionaryAPI;
     }
 }

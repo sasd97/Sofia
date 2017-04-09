@@ -2,11 +2,12 @@ package sasd97.github.com.translator.ui.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
@@ -37,12 +38,15 @@ public class TranslateFragment extends BaseFragment
     private String[] fromLanguagesList;
     private SupportedLanguageModel targetLanguage;
     private SupportedLanguageModel destinationLanguage;
+    private StopTypingDetector stopTypingDetector;
 
     @BindView(R.id.target_lang_sprinner) Spinner fromLanguageSpinner;
     @BindView(R.id.destination_lang_spinner) Spinner toLanguageSpinner;
     @BindView(R.id.translate_edittext) MaterialEditText translateEditText;
+    @BindView(R.id.main_translation_title_holder) TextView mainTranslationTitleTextView;
+    @BindView(R.id.main_translation_textview) TextView mainTranslationTextView;
 
-    @BindString(R.string.automatic_lanugage) String automatic;
+    @BindString(R.string.automatic_language) String automatic;
     @BindArray(R.array.languages) String[] array;
 
     @Override
@@ -64,7 +68,8 @@ public class TranslateFragment extends BaseFragment
         super.onViewCreated(state);
         handler = new Handler();
 
-        translateEditText.addTextChangedListener(new StopTypingDetector(handler, this));
+        stopTypingDetector = new StopTypingDetector(handler, this);
+        translateEditText.addTextChangedListener(stopTypingDetector);
 
         fromLanguagesList = new String[array.length + 1];
         fromLanguagesList[0] = automatic;
@@ -106,6 +111,8 @@ public class TranslateFragment extends BaseFragment
                 destinationLanguage = SupportedLanguageModel.fromLongString(array[i]);
                 break;
         }
+
+        stopTypingDetector.notifyMadeNewOnceDelay(translateEditText.getEditableText());
     }
 
     @Override
@@ -121,7 +128,9 @@ public class TranslateFragment extends BaseFragment
     @Override
     public void onHttpSuccess(YandexTranslationModel result) {
         if (result == null) return;
-        Toast.makeText(getContext(), result.getText().get(0), Toast.LENGTH_SHORT).show();
+
+        mainTranslationTitleTextView.setText(destinationLanguage.name());
+        mainTranslationTextView.setText(result.getText().get(0));
     }
 
     @Override

@@ -43,13 +43,13 @@ public class StopTypingDetector implements TextWatcher {
 
     @Override
     public void afterTextChanged(Editable editable) {
-        if (editable.length() < 0) return;
+        if (editable.length() <= 0) return;
         lastTextEdit = System.currentTimeMillis();
         handler.postDelayed(finishTypingRunnable, delay);
     }
 
     public void notifyMadeNewOnceDelay(Editable editable) {
-        if (editable.length() < 0) return;
+        if (editable.length() <= 0) return;
         lastTextEdit = System.currentTimeMillis();
         handler.postDelayed(finishTypingRunnable, delay);
     }

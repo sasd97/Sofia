@@ -14,10 +14,4 @@ public interface YandexAPIConstants {
     String SERVER_ULR_DICTIONARY = "https://dictionary.yandex.net/api/v1/dicservice.json/";
 
     //endregion
-
-    //region Languages List
-
-
-
-    //endregion
 }

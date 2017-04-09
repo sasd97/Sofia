@@ -100,8 +100,10 @@
         </android.support.v7.widget.CardView>
 
         <ScrollView
+            android:id="@+id/translations_list"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -110,8 +112,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:clipToPadding="false"
+                android:orientation="vertical"
                 android:padding="8dp"
                 tools:layout_editor_absoluteX="8dp"
                 tools:layout_editor_absoluteY="281dp">
@@ -242,17 +244,17 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:padding="8dp"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:padding="8dp">
 
                         <TextView
                             android:id="@+id/alternative_translation_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:textSize="16sp"
                             android:text="@string/alternative_translation_title"
-                            android:textAllCaps="true" />
+                            android:textAllCaps="true"
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                 </android.support.v7.widget.CardView>

@@ -22,7 +22,7 @@ public class YandexAPIWrapper {
 
     private YandexAPIWrapper() {}
 
-    public static void getLangs(@NonNull final HttpResultListener<LanguagesModel> callback) {
+    public static Call<?> getLangs(@NonNull final HttpResultListener callback) {
         Call<LanguagesModel> getLangsQuery = translatorAPI().getLangs(API_KEY_TRANSLATOR, Locale.getDefault().getCountry());
 
         getLangsQuery.enqueue(new Callback<LanguagesModel>() {
@@ -38,11 +38,13 @@ public class YandexAPIWrapper {
                 callback.onHttpCanceled();
             }
         });
+
+        return getLangsQuery;
     }
 
-    public static void translate(@NonNull String text,
+    public static Call<?> translate(@NonNull String text,
                                  @NonNull String language,
-                                 @NonNull final HttpResultListener<YandexTranslationModel> callback) {
+                                 @NonNull final HttpResultListener callback) {
         Call<YandexTranslationModel> translateQuery = translatorAPI().translate(API_KEY_TRANSLATOR, text, language);
 
         translateQuery.enqueue(new Callback<YandexTranslationModel>() {
@@ -58,5 +60,7 @@ public class YandexAPIWrapper {
                 callback.onHttpCanceled();
             }
         });
+
+        return translateQuery;
     }
 }

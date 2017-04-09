@@ -2,13 +2,16 @@ package sasd97.github.com.translator.ui.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
 
@@ -16,6 +19,7 @@ import butterknife.BindArray;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.OnClick;
+import retrofit2.Call;
 import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.http.HttpError;
 import sasd97.github.com.translator.http.HttpResultListener;
@@ -28,11 +32,12 @@ import static sasd97.github.com.translator.http.YandexAPIWrapper.translate;
 
 public class TranslateFragment extends BaseFragment
         implements AdapterView.OnItemSelectedListener,
-        HttpResultListener<YandexTranslationModel>,
+        HttpResultListener,
         StopTypingDetector.TypingListener {
 
     private String TAG = TranslateFragment.class.getCanonicalName();
 
+    private Call<?> query;
     private Handler handler;
 
     private String[] fromLanguagesList;
@@ -45,6 +50,8 @@ public class TranslateFragment extends BaseFragment
     @BindView(R.id.translate_edittext) MaterialEditText translateEditText;
     @BindView(R.id.main_translation_title_holder) TextView mainTranslationTitleTextView;
     @BindView(R.id.main_translation_textview) TextView mainTranslationTextView;
+    @BindView(R.id.translations_list) View translationsListView;
+    @BindView(R.id.alternative_variants_holder) View alternativeVariantsCardView;
 
     @BindString(R.string.automatic_language) String automatic;
     @BindArray(R.array.languages) String[] array;
@@ -88,6 +95,66 @@ public class TranslateFragment extends BaseFragment
         toLanguageSpinner.setOnItemSelectedListener(this);
     }
 
+    private void showTranslationViews(boolean isShowingBoth) {
+        if (translationsListView.getVisibility() == View.VISIBLE) {
+            if (!isShowingBoth) hideView(alternativeVariantsCardView);
+            return;
+        }
+
+        if (isShowingBoth) alternativeVariantsCardView.setVisibility(View.VISIBLE);
+        else alternativeVariantsCardView.setVisibility(View.INVISIBLE);
+
+        showView(translationsListView);
+    }
+
+    private void playTranslationAnimations(final View v,
+                                             float alphaStart, float alphaFinish,
+                                             float startY, float finishY,
+                                             long duration, final int finalVisibility) {
+        //todo: maybe it may to re-use
+        AnimationSet set = new AnimationSet(true);
+        set.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        Animation alpha = new AlphaAnimation(alphaStart, alphaFinish);
+        alpha.setDuration(duration);
+
+        Animation translate = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, startY, Animation.RELATIVE_TO_SELF, finishY
+        );
+        translate.setDuration(duration);
+
+        set.addAnimation(alpha);
+        set.addAnimation(translate);
+
+        set.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                v.setVisibility(finalVisibility);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        v.startAnimation(set);
+    }
+
+    private void hideView(final View view) {
+        playTranslationAnimations(view, 1.0f, 0.0f, 0.0f, 0.0f, 800L, View.INVISIBLE);
+    }
+
+    private void showView(final View view) {
+        playTranslationAnimations(view, 0.0f, 1.0f, 1.0f, 0.0f, 800L, View.VISIBLE);
+    }
+
     @OnClick(R.id.swap_frame_layout)
     public void onSwapLanguagesClick(View v) {
         if (targetLanguage == SupportedLanguageModel.AUTOMATIC) return;
@@ -116,21 +183,35 @@ public class TranslateFragment extends BaseFragment
     }
 
     @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {}
+
+    @Override
     public void onStopTyping() {
-        translate(translateEditText.getText().toString(),
+        query = translate(translateEditText.getText().toString(),
                 targetLanguage.getCortege(destinationLanguage),
                 this);
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {}
+    private void handleTranslationResponse(YandexTranslationModel translationModel) {
+        mainTranslationTitleTextView.setText(destinationLanguage.name());
+        mainTranslationTextView.setText(translationModel.getText().get(0));
+
+        if (translateEditText.getText().toString().trim().contains(" ")) showTranslationViews(false);
+        else showTranslationViews(true);
+    }
+
+    private void handleDictionaryResponse() {
+
+    }
 
     @Override
-    public void onHttpSuccess(YandexTranslationModel result) {
+    public <T> void onHttpSuccess(T result) {
         if (result == null) return;
 
-        mainTranslationTitleTextView.setText(destinationLanguage.name());
-        mainTranslationTextView.setText(result.getText().get(0));
+        if (result instanceof YandexTranslationModel) {
+            handleTranslationResponse((YandexTranslationModel) result);
+            return;
+        }
     }
 
     @Override
@@ -140,6 +221,17 @@ public class TranslateFragment extends BaseFragment
 
     @Override
     public void onHttpCanceled() {
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (query.isExecuted()) query.cancel();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if (query.isExecuted()) query.cancel();
     }
 }

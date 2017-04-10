@@ -3,6 +3,7 @@ package sasd97.github.com.translator.ui.adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
@@ -24,12 +26,20 @@ import sasd97.github.com.translator.ui.base.BaseViewHolder;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
 
+    private static final String TAG = HistoryAdapter.class.getCanonicalName();
+
+    public interface OnItemSelectedListener {
+        void onSelect(TranslationModel translation, int position);
+    }
+
     public interface HistoryInteractionListener {
         void onRemoveFavorite(int position);
         void onDelete(int position);
     }
 
     private List<TranslationModel> translations;
+
+    private OnItemSelectedListener itemSelectedListener;
     private HistoryInteractionListener historyInteractionListener;
 
     public HistoryAdapter() {
@@ -38,6 +48,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
     public HistoryAdapter(@NonNull List<TranslationModel> translations) {
         this.translations = translations;
+    }
+
+    public void setItemSelectedListener(OnItemSelectedListener itemSelectedListener) {
+        this.itemSelectedListener = itemSelectedListener;
     }
 
     public void setHistoryInteractionListener(HistoryInteractionListener historyInteractionListener) {
@@ -60,6 +74,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
             favoriteView.setOnClickListener(this);
         }
 
+        @OnClick(R.id.history_holder)
+        public void onCardClick(View v) {
+            if (itemSelectedListener == null) return;
+            itemSelectedListener.onSelect(translations.get(getAdapterPosition()), getAdapterPosition());
+        }
+
         @Override
         public void onClick(View view) {
             TranslationModel translation = translations.get(getAdapterPosition());
@@ -69,7 +89,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
             HistorySqlService.update(translation);
 
             if (historyInteractionListener == null) return;
-            if (!translation.isFavorite()) historyInteractionListener.onRemoveFavorite(getAdapterPosition());
+            if (!translation.isFavorite())
+                historyInteractionListener.onRemoveFavorite(getAdapterPosition());
         }
 
         private void changeFavoriteIcon(TranslationModel translation) {

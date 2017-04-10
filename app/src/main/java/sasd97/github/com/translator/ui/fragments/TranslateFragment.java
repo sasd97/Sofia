@@ -30,8 +30,10 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import retrofit2.Call;
 import sasd97.github.com.translator.R;
+import sasd97.github.com.translator.events.OnTranslationChangedListener;
 import sasd97.github.com.translator.http.HttpError;
 import sasd97.github.com.translator.http.HttpResultListener;
+import sasd97.github.com.translator.models.LanguagesModel;
 import sasd97.github.com.translator.models.SupportedLanguageModel;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.models.YandexTranslationModel;
@@ -47,7 +49,8 @@ public class TranslateFragment extends BaseFragment
         StopTypingDetector.TypingListener,
         TextToSpeech.OnInitListener {
 
-    private String TAG = TranslateFragment.class.getCanonicalName();
+    private static final String TAG = TranslateFragment.class.getCanonicalName();
+    private static final String TRANSLATION_ARG = "TRANSLATION_ARGUMENT";
 
     private Call<?> query;
     private Handler handler;
@@ -70,6 +73,8 @@ public class TranslateFragment extends BaseFragment
     @BindString(R.string.automatic_language) String automatic;
     @BindArray(R.array.languages) String[] array;
 
+    private OnTranslationChangedListener listener;
+
     @Override
     protected int getLayout() {
         return R.layout.fragment_translate;
@@ -80,8 +85,23 @@ public class TranslateFragment extends BaseFragment
         return true;
     }
 
-    public static TranslateFragment newInstance() {
-        return new TranslateFragment();
+    public static TranslateFragment newInstance(OnTranslationChangedListener listener) {
+        TranslateFragment translateFragment = new TranslateFragment();
+        translateFragment.setTranslationChangedListener(listener);
+        return translateFragment;
+    }
+
+    public static TranslateFragment newInstance(TranslationModel translation, OnTranslationChangedListener listener) {
+        TranslateFragment translateFragment = new TranslateFragment();
+        translateFragment.setTranslationChangedListener(listener);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(TRANSLATION_ARG, translation);
+        translateFragment.setArguments(bundle);
+        return translateFragment;
+    }
+
+    public void setTranslationChangedListener(OnTranslationChangedListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -107,6 +127,20 @@ public class TranslateFragment extends BaseFragment
         toAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         toLanguageSpinner.setAdapter(toAdapter);
         toLanguageSpinner.setOnItemSelectedListener(this);
+
+        if (getArguments() != null) onArgsExists(getArguments());
+    }
+
+    private void onArgsExists(Bundle args) {
+        TranslationModel translation = args.getParcelable(TRANSLATION_ARG);
+        String[] langs = translation.getLanguage().split("-");
+
+        targetLanguage = SupportedLanguageModel.fromString(langs[0]);
+        destinationLanguage = SupportedLanguageModel.fromString(langs[1]);
+
+        currentTranslation = translation;
+        translateEditText.setText(translation.getOriginalText());
+        handleTranslationResponse(translation);
     }
 
     private void showTranslationViews(boolean isShowingBoth) {
@@ -171,7 +205,6 @@ public class TranslateFragment extends BaseFragment
 
     @Override
     public void onInit(int i) {
-
     }
 
     @OnClick(R.id.swap_frame_layout)
@@ -251,6 +284,7 @@ public class TranslateFragment extends BaseFragment
 
         currentTranslation = HistorySqlService.saveTranslation(translationModel);
         changeFavoriteAction(currentTranslation);
+        listener.onTranslationChanged(translationModel);
 
         if (translateEditText.getText().toString().trim().contains(" ")) showTranslationViews(false);
         else showTranslationViews(true);

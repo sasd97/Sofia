@@ -7,7 +7,7 @@
         android:title="@string/bottom_navigation_translate_title" />
 
     <item android:id="@+id/bottom_navigation_favorites"
-        android:icon="@drawable/ic_grade_black_24dp"
+        android:icon="@drawable/ic_favorite_black_24dp"
         android:title="@string/bottom_navigation_favorites_title" />
 
     <item android:id="@+id/bottom_navigation_history"

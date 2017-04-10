@@ -26,6 +26,8 @@ public final class DatabaseQueryBuilder {
     private static final String SPACE = " ";
     private static final String END_EXECUTION = ";";
     private static final String FROM = " FROM ";
+    private static final String UNIQUE = " UNIQUE ";
+    private static final String WHERE = " WHERE ";
 
     //endregion
 
@@ -33,7 +35,7 @@ public final class DatabaseQueryBuilder {
 
     public static final String NULL = " NULL ";
     public static final String INT = " INTEGER ";
-    public static final String CHAR = " VARCHAR ";
+    public static final String CHAR = " TEXT ";
     public static final String REAL = " REAL ";
     public static final String NUMERIC = " NUMERIC ";
     public static final String BLOB = " BLOB ";
@@ -42,16 +44,33 @@ public final class DatabaseQueryBuilder {
 
     //region Special Expressions
 
-    private static String IF_EXISTS = " IF EXISTS ";
-    private static String IF_NOT_EXISTS = " IF NOT EXISTS ";
-    private static String PRIMARY_KEY = " PRIMARY KEY ";
-    private static String NOT_NULL = " NOT NULL ";
+    public static String IF_EXISTS = " IF EXISTS ";
+    public static String IF_NOT_EXISTS = " IF NOT EXISTS ";
+    public static String PRIMARY_KEY = " PRIMARY KEY ";
+    public static String NOT_NULL = " NOT NULL ";
 
     //endregion
 
     //region Logic
 
+    public static String AND = " AND ";
+    public static String IS = " IS ";
+    public static String OR = " OR ";
+    public static String NOT = " NOT ";
+    public static String LIKE = " LIKE ";
+    public static String IN = " IN ";
+    public static String BIGGER = " > ";
+    public static String BIGGER_OR_EQUAL = " >= ";
+    public static String EQUAL = " = ";
+    public static String SMALLER = " < ";
+    public static String SMALLER_OR_EQUAL = " <= ";
 
+    //endregion
+
+    //region Alias
+
+    public static int TRUE = 1;
+    public static int FALSE = 0;
 
     //endregion
 
@@ -94,6 +113,7 @@ public final class DatabaseQueryBuilder {
                     .append(SPACE)
                     .append(column.getType());
 
+            if (column.isUnique()) builder.append(UNIQUE);
             if (!column.isOptional()) builder.append(NOT_NULL);
 
             builder.append(COMA);
@@ -116,6 +136,43 @@ public final class DatabaseQueryBuilder {
                 .append(tableName)
                 .append(END_EXECUTION);
 
+        return this;
+    }
+
+    public DatabaseQueryBuilder selectAllFrom(@NonNull String tableName, @NonNull String whereCondition) {
+        builder
+                .append(SELECT)
+                .append(ALL)
+                .append(FROM)
+                .append(tableName)
+                .append(whereCondition)
+                .append(END_EXECUTION);
+
+        return this;
+    }
+
+    public DatabaseQueryBuilder where(@NonNull DatabaseWhereCondition<?, ?>... conditions) {
+        builder
+                .append(WHERE);
+
+        for (DatabaseWhereCondition<?, ?> condition: conditions) {
+            builder
+                    .append(condition.getLeft())
+                    .append(condition.getCondition());
+
+            if (condition.getCondition().equals(LIKE)) {
+                builder.append('\'').append(condition.getRight()).append('\'');
+            } else {
+                builder.append(condition.getRight());
+            }
+
+            builder
+                    .append(AND);
+        }
+
+        int length = builder.length();
+        builder.delete(length - 5, length);
+        
         return this;
     }
 

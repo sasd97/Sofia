@@ -15,14 +15,18 @@ public interface DatabaseConstants {
 
     //region Tables
 
-    String FAVORITES_TABLE_TITLE = "favorites";
+    String HISTORY_TABLE_TITLE = "history";
 
     //endregion
 
-    //region Favorites Table
+    //region History Table
 
-    String FAVORITES_ID = "fid";
-    String FAVORITES_COUNTER = "counter";
+    String HISTORY_ID = "hid";
+    String HISTORY_LANGUAGE = "language";
+    String HISTORY_ORIGINAL_TEXT = "original_text";
+    String HISTORY_TRANSLATED_TEXT = "translated_text";
+    String HISTORY_IS_FAVORITE = "favorite";
+    String HISTORY_CREATION_DATE = "creation_date";
 
     //endregion
 }

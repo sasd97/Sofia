@@ -158,10 +158,10 @@
                                 android:layout_alignParentRight="true"
                                 android:layout_alignParentTop="true"
                                 android:layout_gravity="center"
-                                android:background="?android:attr/selectableItemBackground"
+                                android:background="?selectableItemBackgroundBorderless"
                                 android:clickable="true"
                                 android:scaleType="centerInside"
-                                android:src="@drawable/ic_star_border_white_24dp" />
+                                android:src="@drawable/ic_favorite_border_white_24dp" />
                         </RelativeLayout>
 
                         <TextView
@@ -201,10 +201,11 @@
 
                                 <ImageView
                                     android:id="@+id/share_action"
-                                    android:layout_width="22dp"
-                                    android:layout_height="22dp"
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:padding="4dp"
                                     android:layout_gravity="center"
-                                    android:background="?android:attr/selectableItemBackground"
+                                    android:background="?selectableItemBackgroundBorderless"
                                     android:clickable="true"
                                     android:scaleType="centerInside"
                                     android:src="@drawable/ic_share_white_24dp" />
@@ -220,10 +221,11 @@
 
                                 <ImageView
                                     android:id="@+id/copy_action"
-                                    android:layout_width="22dp"
-                                    android:layout_height="22dp"
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:padding="4dp"
                                     android:layout_gravity="center"
-                                    android:background="?android:attr/selectableItemBackground"
+                                    android:background="?selectableItemBackgroundBorderless"
                                     android:clickable="true"
                                     android:scaleType="centerInside"
                                     android:src="@drawable/ic_content_copy_white_24dp" />

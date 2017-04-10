@@ -2,6 +2,7 @@ package sasd97.github.com.translator.ui.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
@@ -10,6 +11,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -24,7 +26,9 @@ import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.http.HttpError;
 import sasd97.github.com.translator.http.HttpResultListener;
 import sasd97.github.com.translator.models.SupportedLanguageModel;
+import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.models.YandexTranslationModel;
+import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.base.BaseFragment;
 import sasd97.github.com.translator.utils.StopTypingDetector;
 
@@ -43,8 +47,10 @@ public class TranslateFragment extends BaseFragment
     private String[] fromLanguagesList;
     private SupportedLanguageModel targetLanguage;
     private SupportedLanguageModel destinationLanguage;
+    private TranslationModel currentTranslation;
     private StopTypingDetector stopTypingDetector;
 
+    @BindView(R.id.favorite_action) ImageView favoritesImageView;
     @BindView(R.id.target_lang_sprinner) Spinner fromLanguageSpinner;
     @BindView(R.id.destination_lang_spinner) Spinner toLanguageSpinner;
     @BindView(R.id.translate_edittext) MaterialEditText translateEditText;
@@ -148,11 +154,11 @@ public class TranslateFragment extends BaseFragment
     }
 
     private void hideView(final View view) {
-        playTranslationAnimations(view, 1.0f, 0.0f, 0.0f, 0.0f, 800L, View.INVISIBLE);
+        playTranslationAnimations(view, 1.0f, 0.0f, 0.0f, 0.0f, 500L, View.INVISIBLE);
     }
 
     private void showView(final View view) {
-        playTranslationAnimations(view, 0.0f, 1.0f, 1.0f, 0.0f, 800L, View.VISIBLE);
+        playTranslationAnimations(view, 0.0f, 1.0f, 1.0f, 0.0f, 500L, View.VISIBLE);
     }
 
     @OnClick(R.id.swap_frame_layout)
@@ -166,6 +172,13 @@ public class TranslateFragment extends BaseFragment
         int tempPosition = toLanguageSpinner.getSelectedItemPosition() + 1;
         toLanguageSpinner.setSelection(fromLanguageSpinner.getSelectedItemPosition() - 1);
         fromLanguageSpinner.setSelection(tempPosition);
+    }
+
+    @OnClick(R.id.favorite_action)
+    public void onFavoriteClick(View v) {
+        currentTranslation.switchFavorite();
+        changeFavoriteAction(currentTranslation);
+        HistorySqlService.update(currentTranslation);
     }
 
     @Override
@@ -192,9 +205,17 @@ public class TranslateFragment extends BaseFragment
                 this);
     }
 
-    private void handleTranslationResponse(YandexTranslationModel translationModel) {
+    private void changeFavoriteAction(TranslationModel translation) {
+        if (translation.isFavorite()) favoritesImageView.setImageResource(R.drawable.ic_favorite_white_24dp);
+        else favoritesImageView.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+    }
+
+    private void handleTranslationResponse(TranslationModel translationModel) {
         mainTranslationTitleTextView.setText(destinationLanguage.name());
-        mainTranslationTextView.setText(translationModel.getText().get(0));
+        mainTranslationTextView.setText(translationModel.getTranslatedText());
+
+        currentTranslation = HistorySqlService.saveTranslation(translationModel);
+        changeFavoriteAction(currentTranslation);
 
         if (translateEditText.getText().toString().trim().contains(" ")) showTranslationViews(false);
         else showTranslationViews(true);
@@ -208,8 +229,8 @@ public class TranslateFragment extends BaseFragment
     public <T> void onHttpSuccess(T result) {
         if (result == null) return;
 
-        if (result instanceof YandexTranslationModel) {
-            handleTranslationResponse((YandexTranslationModel) result);
+        if (result instanceof TranslationModel) {
+            handleTranslationResponse((TranslationModel) result);
             return;
         }
     }
@@ -226,12 +247,12 @@ public class TranslateFragment extends BaseFragment
     @Override
     public void onPause() {
         super.onPause();
-        if (query.isExecuted()) query.cancel();
+        if (query != null && query.isExecuted()) query.cancel();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        if (query.isExecuted()) query.cancel();
+        if (query != null && query.isExecuted()) query.cancel();
     }
 }

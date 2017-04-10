@@ -11,21 +11,14 @@ public class DatabaseTableColumn {
     private String title;
     private String type;
 
-    private boolean isOptional = false;
+    private boolean isOptional;
+    private boolean isUnique;
 
-
-    public DatabaseTableColumn(@NonNull String title,
-                               @NonNull String type) {
-        this.title = title;
-        this.type = type;
-    }
-
-    public DatabaseTableColumn(@NonNull String title,
-                               @NonNull String type,
-                               boolean isOptional) {
-        this.title = title;
-        this.type = type;
-        this.isOptional = isOptional;
+    private DatabaseTableColumn(Builder builder) {
+        title = builder.title;
+        type = builder.type;
+        isOptional = builder.isOptional;
+        isUnique = builder.isUnique;
     }
 
     public String getTitle() {
@@ -52,6 +45,14 @@ public class DatabaseTableColumn {
         isOptional = optional;
     }
 
+    public boolean isUnique() {
+        return isUnique;
+    }
+
+    public void setUnique(boolean unique) {
+        isUnique = unique;
+    }
+
     @Override
     public String toString() {
         return "DatabaseTableColumn{" +
@@ -59,5 +60,37 @@ public class DatabaseTableColumn {
                 ", type='" + type + '\'' +
                 ", isOptional=" + isOptional +
                 '}';
+    }
+
+    public static class Builder {
+
+        private String title;
+        private String type;
+        private boolean isOptional = false;
+        private boolean isUnique = false;
+
+        public Builder title(@NonNull String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder type(@NonNull String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder isOptional(boolean isOptional) {
+            this.isOptional = isOptional;
+            return this;
+        }
+
+        public Builder isUnique(boolean isUnique) {
+            this.isUnique = isUnique;
+            return this;
+        }
+
+        public DatabaseTableColumn build() {
+            return new DatabaseTableColumn(this);
+        }
     }
 }

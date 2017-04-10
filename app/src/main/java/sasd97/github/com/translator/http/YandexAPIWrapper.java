@@ -9,6 +9,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import sasd97.github.com.translator.models.LanguagesModel;
+import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.models.YandexTranslationModel;
 
 import static sasd97.github.com.translator.http.HttpService.translatorAPI;
@@ -42,7 +43,7 @@ public class YandexAPIWrapper {
         return getLangsQuery;
     }
 
-    public static Call<?> translate(@NonNull String text,
+    public static Call<?> translate(@NonNull final String text,
                                  @NonNull String language,
                                  @NonNull final HttpResultListener callback) {
         Call<YandexTranslationModel> translateQuery = translatorAPI().translate(API_KEY_TRANSLATOR, text, language);
@@ -51,7 +52,20 @@ public class YandexAPIWrapper {
             @Override
             public void onResponse(Call<YandexTranslationModel> call, Response<YandexTranslationModel> response) {
                 Log.d("HERE", call.request().url().toString());
-                callback.onHttpSuccess(response.body());
+
+                if (response.body() == null) {
+                    callback.onHttpCanceled();
+                    return;
+                }
+
+                TranslationModel translationModel = new TranslationModel();
+                translationModel.setOriginalText(text);
+                translationModel.setTranslatedText(response.body().getText().get(0));
+                translationModel.setLanguage(response.body().getLanguage());
+                translationModel.setFavorite(false);
+                translationModel.defaultCreationDate();
+
+                callback.onHttpSuccess(translationModel);
             }
 
             @Override

@@ -55,7 +55,9 @@
     <string name="translate_edit_text_hint">Type text you want to translate</string>
     <string name="main_translation_title_holder">Main translation language</string>
     <string name="main_translation_holder">Holder</string>
+    <string name="text_was_copied">Text copied to clipboard</string>
     <string name="alternative_translation_title">Alternative translations</string>
+    <string name="choose_to_share">Share via</string>
 
     <!-- Endregion -->
 </resources>

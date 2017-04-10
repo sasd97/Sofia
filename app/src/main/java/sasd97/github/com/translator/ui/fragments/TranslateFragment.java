@@ -1,7 +1,13 @@
 package sasd97.github.com.translator.ui.fragments;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -14,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
 
@@ -37,7 +44,8 @@ import static sasd97.github.com.translator.http.YandexAPIWrapper.translate;
 public class TranslateFragment extends BaseFragment
         implements AdapterView.OnItemSelectedListener,
         HttpResultListener,
-        StopTypingDetector.TypingListener {
+        StopTypingDetector.TypingListener,
+        TextToSpeech.OnInitListener {
 
     private String TAG = TranslateFragment.class.getCanonicalName();
 
@@ -161,6 +169,11 @@ public class TranslateFragment extends BaseFragment
         playTranslationAnimations(view, 0.0f, 1.0f, 1.0f, 0.0f, 500L, View.VISIBLE);
     }
 
+    @Override
+    public void onInit(int i) {
+
+    }
+
     @OnClick(R.id.swap_frame_layout)
     public void onSwapLanguagesClick(View v) {
         if (targetLanguage == SupportedLanguageModel.AUTOMATIC) return;
@@ -179,6 +192,26 @@ public class TranslateFragment extends BaseFragment
         currentTranslation.switchFavorite();
         changeFavoriteAction(currentTranslation);
         HistorySqlService.update(currentTranslation);
+    }
+
+    @OnClick(R.id.copy_action)
+    public void onCopyClick(View v) {
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("sofia.translator", currentTranslation.getTranslatedText());
+        clipboard.setPrimaryClip(clip);
+
+        Toast
+                .makeText(getContext(), R.string.text_was_copied, Toast.LENGTH_SHORT)
+                .show();
+    }
+
+    @OnClick(R.id.share_action)
+    public void onShareClick(View v) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, currentTranslation.getTranslatedText());
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.choose_to_share)));
     }
 
     @Override
@@ -200,6 +233,8 @@ public class TranslateFragment extends BaseFragment
 
     @Override
     public void onStopTyping() {
+        if (translateEditText.getText().toString().trim().equals("")) return;
+
         query = translate(translateEditText.getText().toString(),
                 targetLanguage.getCortege(destinationLanguage),
                 this);

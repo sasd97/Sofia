@@ -8,6 +8,10 @@ import sasd97.github.com.translator.models.TranslationModel;
 
 public interface OnTranslationChangedListener {
 
+    int TRANSLATE_FRAGMENT = 0;
+    int FAVORITES_FRAGMENT = 1;
+    int HISTORY_FRAGMENT = 2;
+
     void onFragmentNeedToBeSwitched(int fragment);
     void onTranslationChanged(TranslationModel translation);
 }

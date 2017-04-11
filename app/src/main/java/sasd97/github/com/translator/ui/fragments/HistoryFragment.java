@@ -44,11 +44,6 @@ public class HistoryFragment extends BaseFragment implements HistoryAdapter.OnIt
     }
 
     @Override
-    protected boolean isButterKnifeEnabled() {
-        return true;
-    }
-
-    @Override
     protected void onViewCreated(Bundle state) {
         super.onViewCreated(state);
 

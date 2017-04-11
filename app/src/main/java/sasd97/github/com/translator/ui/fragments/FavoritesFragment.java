@@ -44,11 +44,6 @@ public class FavoritesFragment extends BaseFragment
     }
 
     @Override
-    protected boolean isButterKnifeEnabled() {
-        return true;
-    }
-
-    @Override
     protected void onViewCreated(Bundle state) {
         super.onViewCreated(state);
 

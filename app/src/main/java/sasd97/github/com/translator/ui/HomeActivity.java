@@ -20,9 +20,9 @@ public class HomeActivity extends BaseActivity
 
     private static final String TAG = HomeActivity.class.getCanonicalName();
 
-    @BindView(R.id.home_bottom_navigation) BottomNavigationView bottomNavigationView;
-
     private TranslationModel currentTranslation;
+
+    @BindView(R.id.home_bottom_navigation) BottomNavigationView bottomNavigationView;
 
     public HomeActivity() {
         super(R.layout.activity_home);
@@ -34,11 +34,6 @@ public class HomeActivity extends BaseActivity
     }
 
     @Override
-    protected boolean isButterKnifeEnabled() {
-        return true;
-    }
-
-    @Override
     protected int getToolbarId() {
         return R.id.home_toolbar;
     }
@@ -46,7 +41,9 @@ public class HomeActivity extends BaseActivity
     @Override
     protected void onViewCreated() {
         super.onViewCreated();
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
@@ -84,9 +81,17 @@ public class HomeActivity extends BaseActivity
     @Override
     public void onFragmentNeedToBeSwitched(int fragment) {
         switch (fragment) {
-            case 0:
+            case TRANSLATE_FRAGMENT:
                 commitFragment(TranslateFragment.newInstance(currentTranslation, this));
                 bottomNavigationView.setSelectedItemId(R.id.bottom_navigation_translate);
+                break;
+            case FAVORITES_FRAGMENT:
+                commitFragment(FavoritesFragment.newInstance(this));
+                bottomNavigationView.setSelectedItemId(R.id.bottom_navigation_favorites);
+                break;
+            case HISTORY_FRAGMENT:
+                commitFragment(HistoryFragment.newInstance(this));
+                bottomNavigationView.setSelectedItemId(R.id.bottom_navigation_history);
                 break;
         }
     }

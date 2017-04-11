@@ -27,7 +27,7 @@ public class BaseFragment extends Fragment {
         if (getLayout() == -1) return super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(getLayout(), container, false);
 
-        if (isButterKnifeEnabled()) ButterKnife.bind(this, v);
+        ButterKnife.bind(this, v);
 
         onViewCreate();
         onViewCreated(savedInstanceState);
@@ -38,6 +38,4 @@ public class BaseFragment extends Fragment {
     protected void onViewCreate() {}
 
     protected void onViewCreated(Bundle state) {}
-
-    protected boolean isButterKnifeEnabled() { return false; }
 }

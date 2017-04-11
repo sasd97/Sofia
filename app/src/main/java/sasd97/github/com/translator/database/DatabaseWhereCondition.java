@@ -13,8 +13,8 @@ public class DatabaseWhereCondition<T, K> {
     private String condition;
 
     public DatabaseWhereCondition(@NonNull T left,
-                                  @NonNull K right,
-                                  @NonNull String condition) {
+                                  @NonNull String condition,
+                                  @NonNull K right) {
         this.left = left;
         this.right = right;
         this.condition = condition;

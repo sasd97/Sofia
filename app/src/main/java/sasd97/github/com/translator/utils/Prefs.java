@@ -10,13 +10,14 @@ import android.util.Log;
 
 public final class Prefs {
 
-    private static String TAG = Prefs.class.getCanonicalName();
-    private static String APP_PREFERENCES = "sofia.app";
+    private static final String TAG = Prefs.class.getCanonicalName();
+    private static final String APP_PREFERENCES = "sofia.app";
 
-    private static SharedPreferences sharedPreferences;
     private static SharedPreferences.Editor editor;
+    private static SharedPreferences sharedPreferences;
 
-    private Prefs() {}
+    private Prefs() {
+    }
 
     public static void init(Context context) {
         sharedPreferences = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
@@ -37,7 +38,7 @@ public final class Prefs {
             editor.putString(key, (String) value);
         }
 
-        Log.d(TAG, "Putted key: " + key + " value: " + value);
+        Log.d(TAG, String.format("Putted key %1$s with value %2$s", key, value.toString()));
         editor.apply();
     }
 

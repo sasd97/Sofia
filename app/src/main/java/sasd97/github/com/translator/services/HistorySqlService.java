@@ -54,9 +54,9 @@ public class HistorySqlService {
     public static TranslationModel find(TranslationModel translationModel) {
         databaseQueryBuilder.flush();
         String where = databaseQueryBuilder
-                .where(new DatabaseWhereCondition<>(HISTORY_LANGUAGE, translationModel.getLanguage(), LIKE),
-                        new DatabaseWhereCondition<>(HISTORY_ORIGINAL_TEXT, translationModel.getOriginalText(), LIKE),
-                        new DatabaseWhereCondition<>(HISTORY_TRANSLATED_TEXT, translationModel.getTranslatedText(), LIKE))
+                .where(new DatabaseWhereCondition<>(HISTORY_LANGUAGE, LIKE, translationModel.getLanguage()),
+                        new DatabaseWhereCondition<>(HISTORY_ORIGINAL_TEXT, LIKE, translationModel.getOriginalText()),
+                        new DatabaseWhereCondition<>(HISTORY_TRANSLATED_TEXT, LIKE, translationModel.getTranslatedText()))
                 .build();
 
         databaseQueryBuilder.flush();
@@ -95,7 +95,7 @@ public class HistorySqlService {
         contentValues.put(HISTORY_TRANSLATED_TEXT, translation.getTranslatedText());
         contentValues.put(HISTORY_LANGUAGE, translation.getLanguage());
         contentValues.put(HISTORY_IS_FAVORITE, translation.isFavorite());
-        contentValues.put(HISTORY_CREATION_DATE, DateFormatter.formatDateTime(translation.getCreationDate()));
+        contentValues.put(HISTORY_CREATION_DATE, DateFormatter.formatDate(translation.getCreationDate()));
 
         long id = db().insert(HISTORY_TABLE_TITLE, null, contentValues);
         translation.setId((int) id);
@@ -139,7 +139,7 @@ public class HistorySqlService {
         databaseQueryBuilder.flush();
 
         String whereFavorites = databaseQueryBuilder
-                .where(new DatabaseWhereCondition<>(HISTORY_IS_FAVORITE, TRUE, EQUAL))
+                .where(new DatabaseWhereCondition<>(HISTORY_IS_FAVORITE, EQUAL, TRUE))
                 .build();
 
         databaseQueryBuilder.flush();

@@ -41,7 +41,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         setContentView(layoutId);
 
-        if (isButterKnifeEnabled()) ButterKnife.bind(this);
+        ButterKnife.bind(this);
 
         onViewCreate();
         onViewCreated();
@@ -85,15 +85,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected <T> T findView(@IdRes int resId) {
         View v = findViewById(resId);
         return (T) v;
-    }
-
-    /**
-     * Method included in activity <b>behavior</b>
-     * Signals to activity use ButterKnife bind or not
-     * @return boolean flag to signal ButterKnife usage
-     */
-    protected boolean isButterKnifeEnabled() {
-        return false;
     }
 
     /**

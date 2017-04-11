@@ -28,6 +28,7 @@ public final class DatabaseQueryBuilder {
     private static final String FROM = " FROM ";
     private static final String UNIQUE = " UNIQUE ";
     private static final String WHERE = " WHERE ";
+    private static final String DROP = " DROP ";
 
     //endregion
 
@@ -134,8 +135,7 @@ public final class DatabaseQueryBuilder {
                 .append(SELECT)
                 .append(ALL)
                 .append(FROM)
-                .append(tableName)
-                .append(END_EXECUTION);
+                .append(tableName);
 
         return this;
     }
@@ -146,8 +146,7 @@ public final class DatabaseQueryBuilder {
                 .append(ALL)
                 .append(FROM)
                 .append(tableName)
-                .append(whereCondition)
-                .append(END_EXECUTION);
+                .append(whereCondition);
 
         return this;
     }
@@ -177,12 +176,23 @@ public final class DatabaseQueryBuilder {
         return this;
     }
 
+    public DatabaseQueryBuilder dropDatabase(@NonNull String tableName) {
+        builder
+                .append(DROP)
+                .append(TABLE)
+                .append(IF_EXISTS)
+                .append(tableName);
+
+        return this;
+    }
+
     public DatabaseQueryBuilder enableLog() {
         isLogged = true;
         return this;
     }
 
     public String build() {
+        builder.append(END_EXECUTION);
         String query = builder.toString();
         if (isLogged) Log.d(TAG, query);
         return query;
@@ -190,7 +200,6 @@ public final class DatabaseQueryBuilder {
 
     @Override
     public String toString() {
-        //todo: internal representation of query
-        return super.toString();
+        return String.format("DatabaseQueryBuilder{\nisLoggingEnabled = %1$b\nquery = %2$s\n}", isLogged, builder.toString());
     }
 }

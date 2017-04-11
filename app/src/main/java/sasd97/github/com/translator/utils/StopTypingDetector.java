@@ -1,7 +1,6 @@
 package sasd97.github.com.translator.utils;
 
 import android.os.Handler;
-import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 
@@ -17,8 +16,11 @@ public class StopTypingDetector implements TextWatcher {
 
     private long delay = 1000;
     private long lastTextEdit = 0;
+
     private Handler handler;
     private TypingListener typingListener;
+
+    private boolean isDetectorActive = true;
 
     public StopTypingDetector(Handler handler, TypingListener typingListener) {
         this.handler = handler;
@@ -44,12 +46,20 @@ public class StopTypingDetector implements TextWatcher {
     @Override
     public void afterTextChanged(Editable editable) {
         if (editable.length() <= 0) return;
-        lastTextEdit = System.currentTimeMillis();
-        handler.postDelayed(finishTypingRunnable, delay);
+        subscribeDetector();
     }
 
-    public void notifyMadeNewOnceDelay(Editable editable) {
+    public void notifyDataChanged(Editable editable) {
         if (editable.length() <= 0) return;
+        subscribeDetector();
+    }
+
+    public void setDetectorActive(boolean isDetectorActive) {
+        this.isDetectorActive = isDetectorActive;
+    }
+
+    private void subscribeDetector() {
+        if (!isDetectorActive) return;
         lastTextEdit = System.currentTimeMillis();
         handler.postDelayed(finishTypingRunnable, delay);
     }

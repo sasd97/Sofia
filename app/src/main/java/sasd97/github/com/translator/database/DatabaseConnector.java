@@ -46,6 +46,13 @@ public class DatabaseConnector extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        //todo: obtain all useful tables updates
+        String dropHistoryTableQuery = DatabaseQueryBuilder
+                .getInstance()
+                .enableLog()
+                .dropDatabase(HISTORY_TABLE_TITLE)
+                .build();
+
+        sqLiteDatabase.execSQL(dropHistoryTableQuery);
+        onCreate(sqLiteDatabase);
     }
 }

@@ -53,15 +53,6 @@ public class DatabaseTableColumn {
         isUnique = unique;
     }
 
-    @Override
-    public String toString() {
-        return "DatabaseTableColumn{" +
-                "title='" + title + '\'' +
-                ", type='" + type + '\'' +
-                ", isOptional=" + isOptional +
-                '}';
-    }
-
     public static class Builder {
 
         private String title;
@@ -92,5 +83,15 @@ public class DatabaseTableColumn {
         public DatabaseTableColumn build() {
             return new DatabaseTableColumn(this);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "DatabaseTableColumn{" +
+                "title='" + title + '\'' +
+                ", type='" + type + '\'' +
+                ", isOptional=" + isOptional +
+                ", isUnique=" + isUnique +
+                '}';
     }
 }

@@ -3,7 +3,6 @@ package sasd97.github.com.translator.ui.adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,10 +59,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
     public class HistoryViewHolder extends BaseViewHolder implements View.OnClickListener {
 
-        @BindView(R.id.favorite_holder) View favoriteView;
-        @BindView(R.id.favorite_image) ImageView favoriteImageView;
-        @BindView(R.id.history_original_text) TextView originalTextView;
-        @BindView(R.id.history_translated_text) TextView translatedTextView;
+        @BindView(R.id.item_history_action_favorite) ImageView favoriteImageView;
+        @BindView(R.id.item_history_original_textview) TextView originalTextView;
+        @BindView(R.id.item_history_translated_text) TextView translatedTextView;
 
         public HistoryViewHolder(View itemView) {
             super(itemView);
@@ -71,10 +69,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
         @Override
         protected void setupViews() {
-            favoriteView.setOnClickListener(this);
+            favoriteImageView.setOnClickListener(this);
         }
 
-        @OnClick(R.id.history_holder)
+        @OnClick(R.id.item_history_relative_layout)
         public void onCardClick(View v) {
             if (itemSelectedListener == null) return;
             itemSelectedListener.onSelect(translations.get(getAdapterPosition()), getAdapterPosition());
@@ -102,7 +100,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     @Override
     public HistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
-        View v = LayoutInflater.from(context).inflate(R.layout.row_history, parent, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.item_history, parent, false);
         return new HistoryViewHolder(v);
     }
 

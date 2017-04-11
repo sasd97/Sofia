@@ -74,10 +74,11 @@ public final class DatabaseQueryBuilder {
 
     //endregion
 
-    private StringBuilder builder = new StringBuilder();
     private boolean isLogged = false;
+    private StringBuilder builder = new StringBuilder();
 
-    private DatabaseQueryBuilder() {}
+    private DatabaseQueryBuilder() {
+    }
 
     public static DatabaseQueryBuilder getInstance() {
         return new DatabaseQueryBuilder();
@@ -92,8 +93,8 @@ public final class DatabaseQueryBuilder {
     }
 
     public DatabaseQueryBuilder createTable(@NonNull String tableName,
-                            @NonNull String idColumnTitle,
-                            @NonNull DatabaseTableColumn... columns) {
+                                            @NonNull String idColumnTitle,
+                                            @NonNull DatabaseTableColumn... columns) {
         builder
                 .append(CREATE)
                 .append(TABLE)
@@ -107,7 +108,7 @@ public final class DatabaseQueryBuilder {
                 .append(AUTOINCREMENT)
                 .append(COMA);
 
-        for (DatabaseTableColumn column: columns) {
+        for (DatabaseTableColumn column : columns) {
             builder
                     .append(column.getTitle())
                     .append(SPACE)
@@ -155,7 +156,7 @@ public final class DatabaseQueryBuilder {
         builder
                 .append(WHERE);
 
-        for (DatabaseWhereCondition<?, ?> condition: conditions) {
+        for (DatabaseWhereCondition<?, ?> condition : conditions) {
             builder
                     .append(condition.getLeft())
                     .append(condition.getCondition());
@@ -172,7 +173,7 @@ public final class DatabaseQueryBuilder {
 
         int length = builder.length();
         builder.delete(length - 5, length);
-        
+
         return this;
     }
 

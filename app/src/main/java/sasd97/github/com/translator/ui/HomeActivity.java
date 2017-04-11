@@ -3,16 +3,12 @@ package sasd97.github.com.translator.ui;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.MenuItem;
-
-import java.util.List;
 
 import butterknife.BindView;
 import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.events.OnTranslationChangedListener;
 import sasd97.github.com.translator.models.TranslationModel;
-import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.base.BaseActivity;
 import sasd97.github.com.translator.ui.fragments.FavoritesFragment;
 import sasd97.github.com.translator.ui.fragments.HistoryFragment;
@@ -24,7 +20,7 @@ public class HomeActivity extends BaseActivity
 
     private static final String TAG = HomeActivity.class.getCanonicalName();
 
-    @BindView(R.id.navigation) BottomNavigationView bottomNavigationView;
+    @BindView(R.id.home_bottom_navigation) BottomNavigationView bottomNavigationView;
 
     private TranslationModel currentTranslation;
 
@@ -33,19 +29,30 @@ public class HomeActivity extends BaseActivity
     }
 
     @Override
+    protected boolean isToolbarEnabled() {
+        return true;
+    }
+
+    @Override
     protected boolean isButterKnifeEnabled() {
         return true;
     }
 
     @Override
+    protected int getToolbarId() {
+        return R.id.home_toolbar;
+    }
+
+    @Override
     protected void onViewCreated() {
         super.onViewCreated();
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.fragmentContainer, TranslateFragment.newInstance(this))
+                .add(R.id.home_fragment_container, TranslateFragment.newInstance(this))
                 .addToBackStack(null)
                 .commit();
     }
@@ -69,7 +76,7 @@ public class HomeActivity extends BaseActivity
     private void commitFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, fragment)
+                .replace(R.id.home_fragment_container, fragment)
                 .addToBackStack(null)
                 .commit();
     }

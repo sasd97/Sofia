@@ -2,16 +2,17 @@
     <string name="app_name">Sophia</string>
 
     <!-- Region Home Activity -->
+
     <string name="bottom_navigation_translate_title">Translate</string>
     <string name="bottom_navigation_favorites_title">Favorites</string>
     <string name="bottom_navigation_history_title">History</string>
+
     <!-- Endregion -->
 
     <!-- Region Yandex Supported Languages -->
 
-    <string name="automatic_language">Automatic</string>
-
-    <string-array name="languages">
+    <string name="all_automatic_language">Automatic</string>
+    <string-array name="all_languages">
         <item>Albanian</item>
         <item>Armenian</item>
         <item>Azerbaijani</item>
@@ -53,11 +54,11 @@
     <!-- Region Translate Fragment -->
 
     <string name="translate_edit_text_hint">Type text you want to translate</string>
-    <string name="main_translation_title_holder">Main translation language</string>
-    <string name="main_translation_holder">Holder</string>
-    <string name="text_was_copied">Text copied to clipboard</string>
-    <string name="alternative_translation_title">Alternative translations</string>
-    <string name="choose_to_share">Share via</string>
+    <string name="translate_primary_translation_title_holder">Main translation language</string>
+    <string name="translate_primary_translation_holder">Holder</string>
+    <string name="translate_toast_text_was_copied">Text copied to clipboard</string>
+    <string name="translate_alternative_translation_title">Alternative translations</string>
+    <string name="translate_action_share_via">Share via</string>
 
     <!-- Endregion -->
 </resources>

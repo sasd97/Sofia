@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
-import android.support.design.widget.Snackbar;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
@@ -33,10 +31,8 @@ import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.events.OnTranslationChangedListener;
 import sasd97.github.com.translator.http.HttpError;
 import sasd97.github.com.translator.http.HttpResultListener;
-import sasd97.github.com.translator.models.LanguagesModel;
 import sasd97.github.com.translator.models.SupportedLanguageModel;
 import sasd97.github.com.translator.models.TranslationModel;
-import sasd97.github.com.translator.models.YandexTranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.base.BaseFragment;
 import sasd97.github.com.translator.utils.StopTypingDetector;
@@ -61,17 +57,17 @@ public class TranslateFragment extends BaseFragment
     private TranslationModel currentTranslation;
     private StopTypingDetector stopTypingDetector;
 
-    @BindView(R.id.favorite_action) ImageView favoritesImageView;
-    @BindView(R.id.target_lang_sprinner) Spinner fromLanguageSpinner;
-    @BindView(R.id.destination_lang_spinner) Spinner toLanguageSpinner;
-    @BindView(R.id.translate_edittext) MaterialEditText translateEditText;
-    @BindView(R.id.main_translation_title_holder) TextView mainTranslationTitleTextView;
-    @BindView(R.id.main_translation_textview) TextView mainTranslationTextView;
-    @BindView(R.id.translations_list) View translationsListView;
-    @BindView(R.id.alternative_variants_holder) View alternativeVariantsCardView;
+    @BindView(R.id.translate_action_favorite) ImageView favoritesImageView;
+    @BindView(R.id.translate_target_language_spinner) Spinner fromLanguageSpinner;
+    @BindView(R.id.translate_destination_language_spinner) Spinner toLanguageSpinner;
+    @BindView(R.id.translate_input_edittext) MaterialEditText translateEditText;
+    @BindView(R.id.translate_lanugage_holder_textview) TextView mainTranslationTitleTextView;
+    @BindView(R.id.translate_primary_translation_textview) TextView mainTranslationTextView;
+    @BindView(R.id.translate_scrollview) View translationsListView;
+    @BindView(R.id.translate_alternative_translation_cardview) View alternativeVariantsCardView;
 
-    @BindString(R.string.automatic_language) String automatic;
-    @BindArray(R.array.languages) String[] array;
+    @BindString(R.string.all_automatic_language) String automatic;
+    @BindArray(R.array.all_languages) String[] array;
 
     private OnTranslationChangedListener listener;
 
@@ -94,6 +90,7 @@ public class TranslateFragment extends BaseFragment
     public static TranslateFragment newInstance(TranslationModel translation, OnTranslationChangedListener listener) {
         TranslateFragment translateFragment = new TranslateFragment();
         translateFragment.setTranslationChangedListener(listener);
+        if (translation == null) return translateFragment;
         Bundle bundle = new Bundle();
         bundle.putParcelable(TRANSLATION_ARG, translation);
         translateFragment.setArguments(bundle);
@@ -123,7 +120,7 @@ public class TranslateFragment extends BaseFragment
         fromLanguageSpinner.setOnItemSelectedListener(this);
 
         ArrayAdapter<CharSequence> toAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.languages, android.R.layout.simple_spinner_item);
+                R.array.all_languages, android.R.layout.simple_spinner_item);
         toAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         toLanguageSpinner.setAdapter(toAdapter);
         toLanguageSpinner.setOnItemSelectedListener(this);
@@ -207,7 +204,7 @@ public class TranslateFragment extends BaseFragment
     public void onInit(int i) {
     }
 
-    @OnClick(R.id.swap_frame_layout)
+    @OnClick(R.id.translate_swap_languages)
     public void onSwapLanguagesClick(View v) {
         if (targetLanguage == SupportedLanguageModel.AUTOMATIC) return;
 
@@ -220,40 +217,40 @@ public class TranslateFragment extends BaseFragment
         fromLanguageSpinner.setSelection(tempPosition);
     }
 
-    @OnClick(R.id.favorite_action)
+    @OnClick(R.id.translate_action_favorite)
     public void onFavoriteClick(View v) {
         currentTranslation.switchFavorite();
         changeFavoriteAction(currentTranslation);
         HistorySqlService.update(currentTranslation);
     }
 
-    @OnClick(R.id.copy_action)
+    @OnClick(R.id.translate_action_copy)
     public void onCopyClick(View v) {
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("sofia.translator", currentTranslation.getTranslatedText());
         clipboard.setPrimaryClip(clip);
 
         Toast
-                .makeText(getContext(), R.string.text_was_copied, Toast.LENGTH_SHORT)
+                .makeText(getContext(), R.string.translate_toast_text_was_copied, Toast.LENGTH_SHORT)
                 .show();
     }
 
-    @OnClick(R.id.share_action)
+    @OnClick(R.id.translate_action_share)
     public void onShareClick(View v) {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, currentTranslation.getTranslatedText());
         sendIntent.setType("text/plain");
-        startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.choose_to_share)));
+        startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.translate_action_share_via)));
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         switch (adapterView.getId()) {
-            case R.id.target_lang_sprinner:
+            case R.id.translate_target_language_spinner:
                 targetLanguage = SupportedLanguageModel.fromLongString(fromLanguagesList[i]);
                 break;
-            case R.id.destination_lang_spinner:
+            case R.id.translate_destination_language_spinner:
                 destinationLanguage = SupportedLanguageModel.fromLongString(array[i]);
                 break;
         }

@@ -60,7 +60,7 @@ public class FavoritesFragment extends BaseFragment
     @Override
     public void onSelect(TranslationModel translation, int position) {
         translationChangedListener.onTranslationChanged(translation);
-        translationChangedListener.onFragmentNeedToBeSwitched(0);
+        translationChangedListener.onFragmentNeedToBeSwitched(OnTranslationChangedListener.TRANSLATE_FRAGMENT);
     }
 
     @Override

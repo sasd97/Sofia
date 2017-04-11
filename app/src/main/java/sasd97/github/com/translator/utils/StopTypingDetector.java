@@ -3,12 +3,15 @@ package sasd97.github.com.translator.utils;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 
 /**
  * Created by alexander on 08.04.17.
  */
 
 public class StopTypingDetector implements TextWatcher {
+
+    private static final String TAG = StopTypingDetector.class.getCanonicalName();
 
     public interface TypingListener {
         void onStopTyping();

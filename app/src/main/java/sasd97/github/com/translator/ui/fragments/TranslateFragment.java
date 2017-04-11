@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
@@ -23,6 +25,8 @@ import android.widget.Toast;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
 
+import java.util.Arrays;
+
 import butterknife.BindArray;
 import butterknife.BindString;
 import butterknife.BindView;
@@ -36,6 +40,7 @@ import sasd97.github.com.translator.models.SupportedLanguageModel;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.base.BaseFragment;
+import sasd97.github.com.translator.utils.ArrayUtils;
 import sasd97.github.com.translator.utils.StopTypingDetector;
 
 import static sasd97.github.com.translator.http.YandexAPIWrapper.translate;
@@ -43,8 +48,7 @@ import static sasd97.github.com.translator.http.YandexAPIWrapper.translate;
 public class TranslateFragment extends BaseFragment
         implements AdapterView.OnItemSelectedListener,
         HttpResultListener,
-        StopTypingDetector.TypingListener,
-        TextToSpeech.OnInitListener {
+        StopTypingDetector.TypingListener {
 
     //region variables
 
@@ -63,7 +67,7 @@ public class TranslateFragment extends BaseFragment
     private OnTranslationChangedListener listener;
 
     @BindArray(R.array.all_languages) String[] allAvailableLanguagesList;
-    @BindString(R.string.all_automatic_language) String automaticLangugageRecognitionString;
+    @BindString(R.string.all_automatic_language) String automaticLanguageRecognitionString;
 
     @BindView(R.id.translate_action_favorite) ImageView favoritesActionImageView;
     @BindView(R.id.translate_target_language_spinner) Spinner targetLanguageSpinner;
@@ -105,23 +109,25 @@ public class TranslateFragment extends BaseFragment
 
     //endregion
 
-    //todo: stops here!!!
+    //region setters & getters
 
     public void setTranslationChangedListener(OnTranslationChangedListener listener) {
         this.listener = listener;
     }
 
+    //endregion
+
+    //region initialization
+
     @Override
     protected void onViewCreated(Bundle state) {
         super.onViewCreated(state);
-        handler = new Handler();
 
+        handler = new Handler();
         stopTypingDetector = new StopTypingDetector(handler, this);
         translateInputEditText.addTextChangedListener(stopTypingDetector);
 
-        targetLanguagesList = new String[allAvailableLanguagesList.length + 1];
-        targetLanguagesList[0] = automaticLangugageRecognitionString;
-        System.arraycopy(allAvailableLanguagesList, 0, targetLanguagesList, 1, allAvailableLanguagesList.length);
+        onLanguagesInit();
 
         ArrayAdapter<CharSequence> fromAdapter = new ArrayAdapter<CharSequence>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item, targetLanguagesList);
@@ -129,8 +135,8 @@ public class TranslateFragment extends BaseFragment
         targetLanguageSpinner.setAdapter(fromAdapter);
         targetLanguageSpinner.setOnItemSelectedListener(this);
 
-        ArrayAdapter<CharSequence> toAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.all_languages, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> toAdapter = new ArrayAdapter<CharSequence>(getContext(),
+                android.R.layout.simple_spinner_dropdown_item, allAvailableLanguagesList);
         toAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         destinationLanguageSpinner.setAdapter(toAdapter);
         destinationLanguageSpinner.setOnItemSelectedListener(this);
@@ -138,17 +144,41 @@ public class TranslateFragment extends BaseFragment
         if (getArguments() != null) onArgsExists(getArguments());
     }
 
+    private void onLanguagesInit() {
+        targetLanguagesList = new String[allAvailableLanguagesList.length + 1];
+        targetLanguagesList[0] = automaticLanguageRecognitionString;
+        System.arraycopy(allAvailableLanguagesList, 0, targetLanguagesList, 1, allAvailableLanguagesList.length);
+    }
+
     private void onArgsExists(Bundle args) {
         TranslationModel translation = args.getParcelable(TRANSLATION_ARG);
-        String[] langs = translation.getLanguage().split("-");
+        if (translation == null) return;
 
-        targetLanguage = SupportedLanguageModel.fromString(langs[0]);
-        destinationLanguage = SupportedLanguageModel.fromString(langs[1]);
+        String[] languages = translation.getLanguage().split("-");
+        if (languages.length != 2) return;
 
         currentTranslation = translation;
+        targetLanguage = SupportedLanguageModel.fromString(languages[0]);
+        destinationLanguage = SupportedLanguageModel.fromString(languages[1]);
+
+        int targetLanguageIndex = ArrayUtils.indexOfCaseInsensitive(targetLanguagesList, targetLanguage.name());
+        int destinationLanguageIndex = ArrayUtils.indexOfCaseInsensitive(allAvailableLanguagesList, destinationLanguage.name());
+
+        stopTypingDetector.setDetectorActive(false);
+
+        targetLanguageSpinner.setTag(-1);
+        destinationLanguageSpinner.setTag(-1);
+        targetLanguageSpinner.setSelection(targetLanguageIndex);
+        destinationLanguageSpinner.setSelection(destinationLanguageIndex);
+
         translateInputEditText.setText(translation.getOriginalText());
         handleTranslationResponse(translation);
+        stopTypingDetector.setDetectorActive(true);
     }
+
+    //endregion
+
+    //region views animation
 
     private void showTranslationViews(boolean isShowingBoth) {
         if (translateScrollView.getVisibility() == View.VISIBLE) {
@@ -210,9 +240,9 @@ public class TranslateFragment extends BaseFragment
         playTranslationAnimations(view, 0.0f, 1.0f, 1.0f, 0.0f, 500L, View.VISIBLE);
     }
 
-    @Override
-    public void onInit(int i) {
-    }
+    //endregion
+
+    //region onClick
 
     @OnClick(R.id.translate_swap_languages)
     public void onSwapLanguagesClick(View v) {
@@ -254,13 +284,34 @@ public class TranslateFragment extends BaseFragment
         startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.translate_action_share_via)));
     }
 
+    //endregion
+
+    //region service callbacks
+
+    @Override
+    public void onStopTyping() {
+        if (TextUtils.isEmpty(translateInputEditText.getText())) return;
+
+        activeQuery = translate(translateInputEditText.getText().toString(),
+                targetLanguage.getCortege(destinationLanguage),
+                this);
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         switch (adapterView.getId()) {
             case R.id.translate_target_language_spinner:
+                if (targetLanguageSpinner.getTag() != null && (Integer) targetLanguageSpinner.getTag() == -1) {
+                    targetLanguageSpinner.setTag(i);
+                    return;
+                }
                 targetLanguage = SupportedLanguageModel.fromLongString(targetLanguagesList[i]);
                 break;
             case R.id.translate_destination_language_spinner:
+                if (destinationLanguageSpinner.getTag() != null && (Integer) destinationLanguageSpinner.getTag() == -1) {
+                    destinationLanguageSpinner.setTag(i);
+                    return;
+                }
                 destinationLanguage = SupportedLanguageModel.fromLongString(allAvailableLanguagesList[i]);
                 break;
         }
@@ -272,37 +323,15 @@ public class TranslateFragment extends BaseFragment
     public void onNothingSelected(AdapterView<?> adapterView) {
     }
 
-    @Override
-    public void onStopTyping() {
-        if (translateInputEditText.getText().toString().trim().equals("")) return;
-
-        activeQuery = translate(translateInputEditText.getText().toString(),
-                targetLanguage.getCortege(destinationLanguage),
-                this);
-    }
-
     private void changeFavoriteAction(TranslationModel translation) {
         if (translation.isFavorite())
             favoritesActionImageView.setImageResource(R.drawable.ic_favorite_white_24dp);
         else favoritesActionImageView.setImageResource(R.drawable.ic_favorite_border_white_24dp);
     }
 
-    private void handleTranslationResponse(TranslationModel translationModel) {
-        translationLanguageHolderTitleTextView.setText(destinationLanguage.name());
-        primaryTranslationTextView.setText(translationModel.getTranslatedText());
+    //endregion
 
-        currentTranslation = HistorySqlService.saveTranslation(translationModel);
-        changeFavoriteAction(currentTranslation);
-        listener.onTranslationChanged(translationModel);
-
-        if (translateInputEditText.getText().toString().trim().contains(" "))
-            showTranslationViews(false);
-        else showTranslationViews(true);
-    }
-
-    private void handleDictionaryResponse() {
-
-    }
+    // region http results & handlers
 
     @Override
     public <T> void onHttpSuccess(T result) {
@@ -323,6 +352,27 @@ public class TranslateFragment extends BaseFragment
     public void onHttpCanceled() {
     }
 
+    private void handleTranslationResponse(TranslationModel translationModel) {
+        translationLanguageHolderTitleTextView.setText(destinationLanguage.name());
+        primaryTranslationTextView.setText(translationModel.getTranslatedText());
+
+        currentTranslation = HistorySqlService.saveTranslation(translationModel);
+        changeFavoriteAction(currentTranslation);
+        listener.onTranslationChanged(translationModel);
+
+        if (translateInputEditText.getText().toString().trim().contains(" "))
+            showTranslationViews(false);
+        else showTranslationViews(true);
+    }
+
+    private void handleDictionaryResponse() {
+
+    }
+
+    //endregion
+
+    //region lifecycle
+
     @Override
     public void onPause() {
         super.onPause();
@@ -334,4 +384,6 @@ public class TranslateFragment extends BaseFragment
         super.onDetach();
         if (activeQuery != null && activeQuery.isExecuted()) activeQuery.cancel();
     }
+
+    //endregion
 }

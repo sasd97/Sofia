@@ -3,6 +3,7 @@ package sasd97.github.com.translator.ui;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.MenuItem;
 
 import butterknife.BindView;

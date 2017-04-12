@@ -29,6 +29,8 @@ public abstract class BaseHistoryFragment extends BaseFragment implements Search
     protected final Runnable filterHistory = new Runnable() {
         @Override
         public void run() {
+            if (translations == null) return;
+
             List<TranslationModel> filteredTranslations = new ArrayList<>();
             String query = searchQuery.toLowerCase();
 

@@ -12,12 +12,13 @@
         android:padding="8dp"
         android:orientation="vertical">
 
-
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/search_input_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/all_search"
+            android:maxLines="1"
+            android:maxLength="20"
             app:met_floatingLabel="highlight"
             app:met_iconLeft="@drawable/ic_search_black_24dp"
             app:met_hideUnderline="true"

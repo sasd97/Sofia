@@ -51,6 +51,11 @@ public class HistorySqlService {
                 new String[] { String.valueOf(translationModel.getId()) });
     }
 
+    public static int delete(int id) {
+        return db().delete(HISTORY_TABLE_TITLE, "hid = ?",
+                new String[] { String.valueOf(id) });
+    }
+
     public static TranslationModel find(TranslationModel translationModel) {
         databaseQueryBuilder.flush();
         String where = databaseQueryBuilder

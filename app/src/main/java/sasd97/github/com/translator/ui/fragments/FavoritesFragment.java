@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.rengwuxian.materialedittext.MaterialEditText;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -13,19 +15,23 @@ import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.adapters.HistoryAdapter;
 import sasd97.github.com.translator.ui.base.BaseFragment;
+import sasd97.github.com.translator.ui.base.BaseHistoryFragment;
+import sasd97.github.com.translator.utils.SearchDetector;
 
 /**
  * Created by alexander on 10/04/2017.
  */
 
-public class FavoritesFragment extends BaseFragment
+public class FavoritesFragment extends BaseHistoryFragment
         implements HistoryAdapter.HistoryInteractionListener, HistoryAdapter.OnItemSelectedListener {
 
     private static final String TAG = HistoryFragment.class.getCanonicalName();
 
+    private SearchDetector searchDetector;
     private HistoryAdapter historyAdapter;
     private OnTranslationChangedListener translationChangedListener;
 
+    @BindView(R.id.search_input_edittext) MaterialEditText searchInputEditText;
     @BindView(R.id.favorites_recyclerview) RecyclerView favoritesRecyclerView;
 
     public static FavoritesFragment newInstance(OnTranslationChangedListener translationChangedListener) {
@@ -51,10 +57,24 @@ public class FavoritesFragment extends BaseFragment
         historyAdapter.setItemSelectedListener(this);
         historyAdapter.setHistoryInteractionListener(this);
         favoritesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        favoritesRecyclerView.setHasFixedSize(true);
         favoritesRecyclerView.setAdapter(historyAdapter);
 
-        List<TranslationModel> trans = HistorySqlService.findAllFavorites();
-        historyAdapter.addHistories(trans);
+        searchDetector = new SearchDetector(this);
+        searchInputEditText.addTextChangedListener(searchDetector);
+
+        Thread t = new Thread(obtainFavorites);
+        t.start();
+    }
+
+    @Override
+    public void onObtain(List<TranslationModel> translations) {
+        historyAdapter.addHistories(translations);
+    }
+
+    @Override
+    public void onFilter(List<TranslationModel> translations) {
+        historyAdapter.filterHistories(translations, searchQuery);
     }
 
     @Override

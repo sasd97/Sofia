@@ -1,9 +1,13 @@
 package sasd97.github.com.translator.ui.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.text.Spannable;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +41,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         void onDelete(int position);
     }
 
+    private final int yandexTextColor = Color.parseColor("#FFCC00");
+
+    private String searchQuery;
     private List<TranslationModel> translations;
 
     private OnItemSelectedListener itemSelectedListener;
@@ -47,7 +54,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     }
 
     public HistoryAdapter(@NonNull List<TranslationModel> translations) {
-        this.translations = translations;
+        this.translations = new ArrayList<>(translations);
     }
 
     public void setItemSelectedListener(OnItemSelectedListener itemSelectedListener) {
@@ -92,6 +99,22 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
                 historyInteractionListener.onRemoveFavorite(getAdapterPosition());
         }
 
+        private Spannable highlightFoundedText(String searchQuery, String highlightedText, int background) {
+            Spannable spannable = Spannable.Factory.getInstance().newSpannable(highlightedText);
+            if (TextUtils.isEmpty(searchQuery)) return spannable;
+
+            String comparable = highlightedText.toLowerCase();
+            String searched = searchQuery.toLowerCase();
+
+            if (!comparable.contains(searched)) return spannable;
+
+            int startIndex = comparable.indexOf(searched);
+            int finishIndex = startIndex + searched.length();
+            spannable.setSpan(new BackgroundColorSpan(background), startIndex, finishIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            return spannable;
+        }
+
         private void changeFavoriteIcon(TranslationModel translation) {
             if (translation.isFavorite()) favoriteImageView.setImageResource(R.drawable.ic_favorite_black_24dp);
             else favoriteImageView.setImageResource(R.drawable.ic_favorite_border_black_24dp);
@@ -109,11 +132,17 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     public void onBindViewHolder(HistoryViewHolder holder, int position) {
         TranslationModel translation = translations.get(position);
 
-        holder.originalTextView.setText(translation.getOriginalText());
-        holder.translatedTextView.setText(translation.getTranslatedText());
+        holder.originalTextView.setText(holder.highlightFoundedText(searchQuery, translation.getOriginalText(), yandexTextColor));
+        holder.translatedTextView.setText(holder.highlightFoundedText(searchQuery, translation.getTranslatedText(), yandexTextColor));
 
         if (translation.isFavorite()) holder.favoriteImageView.setImageResource(R.drawable.ic_favorite_black_24dp);
         else holder.favoriteImageView.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+    }
+
+    public void filterHistories(List<TranslationModel> translations, String searchQuery) {
+        this.searchQuery = searchQuery;
+        this.translations = new ArrayList<>(translations);
+        notifyDataSetChanged();
     }
 
     public void addHistories(List<TranslationModel> translations) {

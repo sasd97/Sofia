@@ -1,10 +1,13 @@
 package sasd97.github.com.translator.ui.fragments;
 
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
+import com.rengwuxian.materialedittext.MaterialEditText;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -13,19 +16,23 @@ import sasd97.github.com.translator.events.OnTranslationChangedListener;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.adapters.HistoryAdapter;
-import sasd97.github.com.translator.ui.base.BaseFragment;
+import sasd97.github.com.translator.ui.base.BaseHistoryFragment;
+import sasd97.github.com.translator.utils.SearchDetector;
 
 /**
  * Created by alexander on 10/04/2017.
  */
 
-public class HistoryFragment extends BaseFragment implements HistoryAdapter.OnItemSelectedListener {
+public class HistoryFragment extends BaseHistoryFragment
+        implements HistoryAdapter.OnItemSelectedListener {
 
     private static final String TAG = HistoryFragment.class.getCanonicalName();
 
+    private SearchDetector searchDetector;
     private HistoryAdapter historyAdapter;
     private OnTranslationChangedListener translationChangedListener;
 
+    @BindView(R.id.search_input_edittext) MaterialEditText searchInputEditText;
     @BindView(R.id.history_recyclerview) RecyclerView historyRecyclerView;
 
     public static HistoryFragment newInstance(OnTranslationChangedListener translationChangedListener) {
@@ -50,10 +57,24 @@ public class HistoryFragment extends BaseFragment implements HistoryAdapter.OnIt
         historyAdapter = new HistoryAdapter();
         historyAdapter.setItemSelectedListener(this);
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        historyRecyclerView.setHasFixedSize(true);
         historyRecyclerView.setAdapter(historyAdapter);
 
-        List<TranslationModel> trans = HistorySqlService.getAllTranslations();
-        historyAdapter.addHistories(trans);
+        searchDetector = new SearchDetector(this);
+        searchInputEditText.addTextChangedListener(searchDetector);
+
+        Thread t = new Thread(obtainHistory);
+        t.start();
+    }
+
+    @Override
+    public void onObtain(List<TranslationModel> translations) {
+        historyAdapter.addHistories(translations);
+    }
+
+    @Override
+    public void onFilter(List<TranslationModel> translations) {
+        historyAdapter.filterHistories(translations, searchQuery);
     }
 
     @Override

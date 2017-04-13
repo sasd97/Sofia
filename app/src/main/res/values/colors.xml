@@ -5,6 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     
     <color name="colorGrey">#BEBEBE</color>
+    <color name="colorGreyDark">#A0A0A0</color>
     <color name="colorDark">#2E2E2E</color>
 
     <color name="colorDivider">#E0E0E0</color>

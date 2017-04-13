@@ -41,7 +41,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         void onDelete(int position);
     }
 
-    private final int yandexTextColor = Color.parseColor("#FFCC00");
+    private final int yandexTextColor = Color.parseColor("#44FFCC00");
 
     private String searchQuery;
     private List<TranslationModel> translations;

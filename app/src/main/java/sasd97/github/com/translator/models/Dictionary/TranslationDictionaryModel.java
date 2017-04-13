@@ -9,7 +9,7 @@ import java.util.List;
  * Created by alexander on 13/04/2017.
  */
 
-public class TranslationModel {
+public class TranslationDictionaryModel {
 
     @SerializedName("text")
     @Expose
@@ -21,15 +21,15 @@ public class TranslationModel {
 
     @SerializedName("syn")
     @Expose
-    private List<TextModel> synonyms;
+    private List<TextDictionaryModel> synonyms;
 
     @SerializedName("mean")
     @Expose
-    private List<TextModel> mean;
+    private List<TextDictionaryModel> mean;
 
     @SerializedName("ex")
     @Expose
-    private List<ExampleModel> examples;
+    private List<ExampleDictionaryModel> examples;
 
     public String getText() {
         return text;
@@ -47,33 +47,33 @@ public class TranslationModel {
         this.partOfSpeech = partOfSpeech;
     }
 
-    public List<TextModel> getSynonyms() {
+    public List<TextDictionaryModel> getSynonyms() {
         return synonyms;
     }
 
-    public void setSynonyms(List<TextModel> synonyms) {
+    public void setSynonyms(List<TextDictionaryModel> synonyms) {
         this.synonyms = synonyms;
     }
 
-    public List<TextModel> getMean() {
+    public List<TextDictionaryModel> getMean() {
         return mean;
     }
 
-    public void setMean(List<TextModel> mean) {
+    public void setMean(List<TextDictionaryModel> mean) {
         this.mean = mean;
     }
 
-    public List<ExampleModel> getExamples() {
+    public List<ExampleDictionaryModel> getExamples() {
         return examples;
     }
 
-    public void setExamples(List<ExampleModel> examples) {
+    public void setExamples(List<ExampleDictionaryModel> examples) {
         this.examples = examples;
     }
 
     @Override
     public String toString() {
-        return "TranslationModel{" +
+        return "TranslationDictionaryModel{" +
                 "text='" + text + '\'' +
                 ", partOfSpeech='" + partOfSpeech + '\'' +
                 ", synonyms=" + synonyms +

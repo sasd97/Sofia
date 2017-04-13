@@ -6,11 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -25,7 +27,8 @@ import android.widget.Toast;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindArray;
 import butterknife.BindString;
@@ -36,12 +39,16 @@ import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.events.OnTranslationChangedListener;
 import sasd97.github.com.translator.http.HttpError;
 import sasd97.github.com.translator.http.HttpResultListener;
+import sasd97.github.com.translator.models.Dictionary.DefinitionDictionaryModel;
 import sasd97.github.com.translator.models.Dictionary.DictionaryModel;
+import sasd97.github.com.translator.models.Dictionary.TranslationDictionaryModel;
 import sasd97.github.com.translator.models.SupportedLanguageModel;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
+import sasd97.github.com.translator.ui.adapters.AlternativeTranslationAdapter;
 import sasd97.github.com.translator.ui.base.BaseFragment;
 import sasd97.github.com.translator.utils.ArrayUtils;
+import sasd97.github.com.translator.utils.Dimens;
 import sasd97.github.com.translator.utils.Prefs;
 import sasd97.github.com.translator.utils.StopTypingDetector;
 
@@ -68,6 +75,7 @@ public class TranslateFragment extends BaseFragment
     private StopTypingDetector stopTypingDetector;
     private SupportedLanguageModel targetLanguage;
     private SupportedLanguageModel destinationLanguage;
+    private AlternativeTranslationAdapter alternativeTranslationAdapter;
 
     private OnTranslationChangedListener listener;
 
@@ -82,6 +90,7 @@ public class TranslateFragment extends BaseFragment
     @BindView(R.id.translate_primary_translation_textview) TextView primaryTranslationTextView;
     @BindView(R.id.translate_scrollview) View translateScrollView;
     @BindView(R.id.translate_alternative_translation_cardview) View alternativeTranslationCardView;
+    @BindView(R.id.translate_alternative_translation_recyclerview) RecyclerView alternativeTranslationRecyclerView;
 
     //endregion
 
@@ -145,6 +154,12 @@ public class TranslateFragment extends BaseFragment
         toAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         destinationLanguageSpinner.setAdapter(toAdapter);
         destinationLanguageSpinner.setOnItemSelectedListener(this);
+
+        alternativeTranslationAdapter = new AlternativeTranslationAdapter();
+        alternativeTranslationRecyclerView.setHasFixedSize(true);
+        alternativeTranslationRecyclerView.setNestedScrollingEnabled(false);
+        alternativeTranslationRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        alternativeTranslationRecyclerView.setAdapter(alternativeTranslationAdapter);
 
         if (getArguments() != null) onArgsExists(getArguments());
         else onPrefsInit();
@@ -400,6 +415,22 @@ public class TranslateFragment extends BaseFragment
 
     private void handleDictionaryResponse(DictionaryModel dictionaryModel) {
         Log.d(TAG, dictionaryModel.toString());
+        List<DefinitionDictionaryModel> definitions = dictionaryModel.getDefinition();
+        if (definitions == null || definitions.isEmpty()) return;
+        Log.d(TAG, definitions + "");
+        List<TranslationDictionaryModel> translations = new ArrayList<>();
+
+        for (DefinitionDictionaryModel definition: definitions) {
+            translations.addAll(definition.getTranslation());
+        }
+
+        alternativeTranslationAdapter.clear();
+        alternativeTranslationAdapter.addTranslations(translations);
+        int count = alternativeTranslationAdapter.getItemCount();
+
+        ViewGroup.LayoutParams params = alternativeTranslationRecyclerView.getLayoutParams();
+        params.height = count * Dimens.dpToPx(60);
+        alternativeTranslationRecyclerView.setLayoutParams(params);
     }
 
     //endregion

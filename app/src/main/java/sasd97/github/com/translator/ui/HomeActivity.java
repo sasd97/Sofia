@@ -51,7 +51,6 @@ public class HomeActivity extends BaseActivity
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.home_fragment_container, TranslateFragment.newInstance(this))
-                .addToBackStack(null)
                 .commit();
     }
 

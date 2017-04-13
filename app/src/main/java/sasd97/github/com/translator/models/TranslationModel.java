@@ -112,7 +112,7 @@ public class TranslationModel implements Parcelable {
 
     @Override
     public String toString() {
-        return "TranslationModel{" +
+        return "TranslationDictionaryModel{" +
                 "id='" + id + '\'' +
                 "language='" + language + '\'' +
                 ", originalText='" + originalText + '\'' +

@@ -13,13 +13,13 @@ public class DictionaryModel {
 
     @SerializedName("def")
     @Expose
-    private List<DefinitionModel> definition;
+    private List<DefinitionDictionaryModel> definition;
 
-    public List<DefinitionModel> getDefinition() {
+    public List<DefinitionDictionaryModel> getDefinition() {
         return definition;
     }
 
-    public void setDefinition(List<DefinitionModel> definition) {
+    public void setDefinition(List<DefinitionDictionaryModel> definition) {
         this.definition = definition;
     }
 

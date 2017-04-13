@@ -247,16 +247,20 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:padding="8dp">
 
                         <TextView
-                            android:id="@+id/translate_alternative_trantion_title"
+                            android:id="@+id/translate_alternative_translation_title"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/translate_alternative_translation_title"
-                            android:textAllCaps="true"
-                            android:textSize="16sp" />
+                            android:textSize="20sp" />
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/translate_alternative_translation_recyclerview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
 
                 </android.support.v7.widget.CardView>

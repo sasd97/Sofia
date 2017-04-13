@@ -9,7 +9,7 @@ import java.util.List;
  * Created by alexander on 13/04/2017.
  */
 
-public class DefinitionModel {
+public class DefinitionDictionaryModel {
 
     @SerializedName("text")
     @Expose
@@ -21,7 +21,7 @@ public class DefinitionModel {
 
     @SerializedName("tr")
     @Expose
-    private List<TranslationModel> translation;
+    private List<TranslationDictionaryModel> translation;
 
     public String getText() {
         return text;
@@ -39,17 +39,17 @@ public class DefinitionModel {
         this.partOfSpeech = partOfSpeech;
     }
 
-    public List<TranslationModel> getTranslation() {
+    public List<TranslationDictionaryModel> getTranslation() {
         return translation;
     }
 
-    public void setTranslation(List<TranslationModel> translation) {
+    public void setTranslation(List<TranslationDictionaryModel> translation) {
         this.translation = translation;
     }
 
     @Override
     public String toString() {
-        return "DefinitionModel{" +
+        return "DefinitionDictionaryModel{" +
                 "text='" + text + '\'' +
                 ", partOfSpeech='" + partOfSpeech + '\'' +
                 ", translation=" + translation +

@@ -16,9 +16,12 @@ import sasd97.github.com.translator.models.YandexTranslationModel;
 public interface YandexTranslatorAPI {
 
     @GET("getLangs")
-    Call<LanguagesModel> getLangs(@Query("key") String apiKey, @Query("ui") String ui);
+    Call<LanguagesModel> getLangs(@Query("key") String apiKey,
+                                  @Query("ui") String ui);
 
     @POST("translate")
     @FormUrlEncoded
-    Call<YandexTranslationModel> translate(@Query("key") String apiKey, @Field("text") String text, @Query("lang") String lang);
+    Call<YandexTranslationModel> translate(@Query("key") String apiKey,
+                                           @Field("text") String text,
+                                           @Query("lang") String lang);
 }

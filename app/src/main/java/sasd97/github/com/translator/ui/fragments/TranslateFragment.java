@@ -36,13 +36,18 @@ import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.events.OnTranslationChangedListener;
 import sasd97.github.com.translator.http.HttpError;
 import sasd97.github.com.translator.http.HttpResultListener;
+import sasd97.github.com.translator.models.Dictionary.DictionaryModel;
 import sasd97.github.com.translator.models.SupportedLanguageModel;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.base.BaseFragment;
 import sasd97.github.com.translator.utils.ArrayUtils;
+import sasd97.github.com.translator.utils.Prefs;
 import sasd97.github.com.translator.utils.StopTypingDetector;
 
+import static sasd97.github.com.translator.constants.PrefsConstants.DESTINATION_LANGUAGE_PREFERENCES;
+import static sasd97.github.com.translator.constants.PrefsConstants.TARGET_LANGUAGE_PREFERENCES;
+import static sasd97.github.com.translator.http.YandexAPIWrapper.lookup;
 import static sasd97.github.com.translator.http.YandexAPIWrapper.translate;
 
 public class TranslateFragment extends BaseFragment
@@ -142,12 +147,29 @@ public class TranslateFragment extends BaseFragment
         destinationLanguageSpinner.setOnItemSelectedListener(this);
 
         if (getArguments() != null) onArgsExists(getArguments());
+        else onPrefsInit();
     }
 
     private void onLanguagesInit() {
         targetLanguagesList = new String[allAvailableLanguagesList.length + 1];
         targetLanguagesList[0] = automaticLanguageRecognitionString;
         System.arraycopy(allAvailableLanguagesList, 0, targetLanguagesList, 1, allAvailableLanguagesList.length);
+    }
+
+    private void onPrefsInit() {
+        if (Prefs.get().contains(TARGET_LANGUAGE_PREFERENCES)) {
+            targetLanguage = SupportedLanguageModel.fromString(Prefs.get().getString(TARGET_LANGUAGE_PREFERENCES, null));
+            int targetLanguageIndex = ArrayUtils.indexOfCaseInsensitive(targetLanguagesList, targetLanguage.name());
+            targetLanguageSpinner.setTag(-1);
+            targetLanguageSpinner.setSelection(targetLanguageIndex);
+        }
+
+        if (Prefs.get().contains(DESTINATION_LANGUAGE_PREFERENCES)) {
+            destinationLanguage = SupportedLanguageModel.fromString(Prefs.get().getString(DESTINATION_LANGUAGE_PREFERENCES, null));
+            int destinationLanguageIndex = ArrayUtils.indexOfCaseInsensitive(allAvailableLanguagesList, destinationLanguage.name());
+            destinationLanguageSpinner.setTag(-1);
+            destinationLanguageSpinner.setSelection(destinationLanguageIndex);
+        }
     }
 
     private void onArgsExists(Bundle args) {
@@ -306,6 +328,7 @@ public class TranslateFragment extends BaseFragment
                     return;
                 }
                 targetLanguage = SupportedLanguageModel.fromLongString(targetLanguagesList[i]);
+                Prefs.put(TARGET_LANGUAGE_PREFERENCES, targetLanguage.toString());
                 break;
             case R.id.translate_destination_language_spinner:
                 if (destinationLanguageSpinner.getTag() != null && (Integer) destinationLanguageSpinner.getTag() == -1) {
@@ -313,6 +336,7 @@ public class TranslateFragment extends BaseFragment
                     return;
                 }
                 destinationLanguage = SupportedLanguageModel.fromLongString(allAvailableLanguagesList[i]);
+                Prefs.put(DESTINATION_LANGUAGE_PREFERENCES, destinationLanguage.toString());
                 break;
         }
 
@@ -341,15 +365,20 @@ public class TranslateFragment extends BaseFragment
             handleTranslationResponse((TranslationModel) result);
             return;
         }
+
+        if (result instanceof DictionaryModel) {
+            handleDictionaryResponse((DictionaryModel) result);
+        }
     }
 
     @Override
     public void onHttpError(HttpError error) {
-
+        Log.d(TAG, "There was an error while obtain request");
     }
 
     @Override
     public void onHttpCanceled() {
+        Log.d(TAG, "Response was canceled");
     }
 
     private void handleTranslationResponse(TranslationModel translationModel) {
@@ -360,13 +389,17 @@ public class TranslateFragment extends BaseFragment
         changeFavoriteAction(currentTranslation);
         listener.onTranslationChanged(translationModel);
 
-        if (translateInputEditText.getText().toString().trim().contains(" "))
+        if (translateInputEditText.getText().toString().trim().contains(" ")) {
             showTranslationViews(false);
-        else showTranslationViews(true);
+        } else {
+            showTranslationViews(true);
+            Log.d(TAG, "Prepare for obtain dictionary");
+            lookup(translationModel.getOriginalText(), translationModel.getLanguage(), this);
+        }
     }
 
-    private void handleDictionaryResponse() {
-
+    private void handleDictionaryResponse(DictionaryModel dictionaryModel) {
+        Log.d(TAG, dictionaryModel.toString());
     }
 
     //endregion

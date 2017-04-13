@@ -8,10 +8,13 @@ import java.util.Locale;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import sasd97.github.com.translator.models.Dictionary.DictionaryModel;
 import sasd97.github.com.translator.models.LanguagesModel;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.models.YandexTranslationModel;
 
+import static sasd97.github.com.translator.constants.YandexAPIConstants.API_KEY_DICTIONARY;
+import static sasd97.github.com.translator.http.HttpService.dictionaryAPI;
 import static sasd97.github.com.translator.http.HttpService.translatorAPI;
 import static sasd97.github.com.translator.constants.YandexAPIConstants.API_KEY_TRANSLATOR;
 
@@ -20,6 +23,8 @@ import static sasd97.github.com.translator.constants.YandexAPIConstants.API_KEY_
  */
 
 public class YandexAPIWrapper {
+
+    private static final String TAG = YandexAPIWrapper.class.getCanonicalName();
 
     private YandexAPIWrapper() {}
 
@@ -76,5 +81,26 @@ public class YandexAPIWrapper {
         });
 
         return translateQuery;
+    }
+
+    public static Call<?> lookup(@NonNull String text,
+                                 @NonNull String language,
+                                 @NonNull final HttpResultListener callback) {
+        Call<DictionaryModel> lookupRequest = dictionaryAPI().lookup(API_KEY_DICTIONARY, text, language);
+
+        lookupRequest.enqueue(new Callback<DictionaryModel>() {
+            @Override
+            public void onResponse(Call<DictionaryModel> call, Response<DictionaryModel> response) {
+                Log.d(TAG, call.request().url().toString());
+                callback.onHttpSuccess(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<DictionaryModel> call, Throwable t) {
+
+            }
+        });
+
+        return lookupRequest;
     }
 }

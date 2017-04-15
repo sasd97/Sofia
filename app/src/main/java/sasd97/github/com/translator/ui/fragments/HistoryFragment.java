@@ -5,8 +5,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
-import com.rengwuxian.materialedittext.MaterialEditText;
-
 import java.util.List;
 
 import butterknife.BindView;
@@ -32,10 +30,10 @@ public class HistoryFragment extends BaseHistoryFragment
     private ItemTouchHelper itemTouchHelper;
     private OnTranslationChangedListener translationChangedListener;
 
-    @BindView(R.id.search_input_edittext) MaterialEditText searchInputEditText;
     @BindView(R.id.history_recyclerview) RecyclerView historyRecyclerView;
 
     private ItemTouchHelper.SimpleCallback swipeToDismissListener = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
             return false;
@@ -46,7 +44,8 @@ public class HistoryFragment extends BaseHistoryFragment
             final int positionToDelete = viewHolder.getAdapterPosition();
             final TranslationModel translationToDelete = translations.get(positionToDelete);
             translations.remove(positionToDelete);
-            historyAdapter.notifyItemRemoved(positionToDelete);
+            historyAdapter.removeHistory(positionToDelete);
+
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -107,6 +106,4 @@ public class HistoryFragment extends BaseHistoryFragment
         translationChangedListener.onTranslationChanged(translation);
         translationChangedListener.onFragmentNeedToBeSwitched(0);
     }
-
-
 }

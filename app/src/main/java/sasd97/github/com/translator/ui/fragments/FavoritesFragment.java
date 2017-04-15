@@ -3,8 +3,7 @@ package sasd97.github.com.translator.ui.fragments;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-
-import com.rengwuxian.materialedittext.MaterialEditText;
+import android.widget.EditText;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class FavoritesFragment extends BaseHistoryFragment
     private HistoryAdapter historyAdapter;
     private OnTranslationChangedListener translationChangedListener;
 
-    @BindView(R.id.search_input_edittext) MaterialEditText searchInputEditText;
+    @BindView(R.id.search_input_edittext) EditText searchInputEditText;
     @BindView(R.id.favorites_recyclerview) RecyclerView favoritesRecyclerView;
 
     public static FavoritesFragment newInstance(OnTranslationChangedListener translationChangedListener) {

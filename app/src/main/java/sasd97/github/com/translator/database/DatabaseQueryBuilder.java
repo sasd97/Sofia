@@ -70,8 +70,9 @@ public final class DatabaseQueryBuilder {
 
     //region Alias
 
-    public static int TRUE = 1;
-    public static int FALSE = 0;
+    public static final int TRUE = 1;
+    public static final int FALSE = 0;
+    public static final String UNKNOWN = " ? ";
 
     //endregion
 
@@ -124,8 +125,7 @@ public final class DatabaseQueryBuilder {
         flushLastComa();
 
         builder
-                .append(CLOSE_ROUND_BRACKET)
-                .append(END_EXECUTION);
+                .append(CLOSE_ROUND_BRACKET);
 
         return this;
     }
@@ -160,10 +160,15 @@ public final class DatabaseQueryBuilder {
                     .append(condition.getLeft())
                     .append(condition.getCondition());
 
-            if (condition.getCondition().equals(LIKE)) {
-                builder.append('\'').append(condition.getRight()).append('\'');
+            if (condition.getRight() == null) {
+                builder
+                        .append(UNKNOWN);
             } else {
-                builder.append(condition.getRight());
+                if (condition.getCondition().equals(LIKE)) {
+                    builder.append('\'').append(condition.getRight()).append('\'');
+                } else {
+                    builder.append(condition.getRight());
+                }
             }
 
             builder

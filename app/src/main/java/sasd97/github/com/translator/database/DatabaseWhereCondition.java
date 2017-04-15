@@ -20,6 +20,12 @@ public class DatabaseWhereCondition<T, K> {
         this.condition = condition;
     }
 
+    public DatabaseWhereCondition(@NonNull T left,
+                                  @NonNull String condition) {
+        this.left = left;
+        this.condition = condition;
+    }
+
     public T getLeft() {
         return left;
     }

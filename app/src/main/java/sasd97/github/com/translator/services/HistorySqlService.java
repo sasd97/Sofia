@@ -35,7 +35,8 @@ public class HistorySqlService {
 
     private HistorySqlService() {}
 
-    private static DatabaseQueryBuilder databaseQueryBuilder = DatabaseQueryBuilder.getInstance();
+    private static DatabaseQueryBuilder databaseQueryBuilder
+            = DatabaseQueryBuilder.getInstance().enableLog();
 
     public static int update(TranslationModel translationModel) {
         ContentValues contentValues = new ContentValues();
@@ -58,16 +59,16 @@ public class HistorySqlService {
 
     public static TranslationModel find(TranslationModel translationModel) {
         databaseQueryBuilder.flush();
-        String where = databaseQueryBuilder
+
+        String selectAllQuery = databaseQueryBuilder
+                .selectAllFrom(HISTORY_TABLE_TITLE)
                 .where(new DatabaseWhereCondition<>(HISTORY_LANGUAGE, LIKE, translationModel.getLanguage()),
-                        new DatabaseWhereCondition<>(HISTORY_ORIGINAL_TEXT, LIKE, translationModel.getOriginalText()),
-                        new DatabaseWhereCondition<>(HISTORY_TRANSLATED_TEXT, LIKE, translationModel.getTranslatedText()))
+                        new DatabaseWhereCondition<>(HISTORY_ORIGINAL_TEXT, LIKE),
+                        new DatabaseWhereCondition<>(HISTORY_TRANSLATED_TEXT, LIKE))
                 .build();
 
-        databaseQueryBuilder.flush();
-        String selectAllQuery = databaseQueryBuilder.selectAllFrom(HISTORY_TABLE_TITLE, where).build();
-
-        Cursor cursor = db().rawQuery(selectAllQuery, null);
+        Cursor cursor = db().rawQuery(selectAllQuery,
+                new String[] { translationModel.getOriginalText(), translationModel.getTranslatedText() });
 
         if (cursor.getCount() > 1) return null;
         if (!cursor.moveToFirst()) return null;
@@ -81,8 +82,8 @@ public class HistorySqlService {
 
         TranslationModel translation = new TranslationModel();
         translation.setId(cursor.getInt(idTextIndex));
-        translation.setOriginalText(cursor.getString(originalTextIndex));
-        translation.setTranslatedText(cursor.getString(translatedTextIndex));
+        translation.setOriginalText(cursor.getString(originalTextIndex).replaceAll("\'", "'"));
+        translation.setTranslatedText(cursor.getString(translatedTextIndex).replaceAll("\'", "'"));
         translation.setLanguage(cursor.getString(languageIndex));
         translation.setFavorite(cursor.getInt(favoritesIndex));
         translation.setCreationDate(cursor.getString(creationDateIndex));
@@ -96,8 +97,8 @@ public class HistorySqlService {
         if (translationModel != null) return translationModel;
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(HISTORY_ORIGINAL_TEXT, translation.getOriginalText());
-        contentValues.put(HISTORY_TRANSLATED_TEXT, translation.getTranslatedText());
+        contentValues.put(HISTORY_ORIGINAL_TEXT, translation.getOriginalText().replaceAll("'", "\'"));
+        contentValues.put(HISTORY_TRANSLATED_TEXT, translation.getTranslatedText().replaceAll("'", "\'"));
         contentValues.put(HISTORY_LANGUAGE, translation.getLanguage());
         contentValues.put(HISTORY_IS_FAVORITE, translation.isFavorite());
         contentValues.put(HISTORY_CREATION_DATE, DateFormatter.formatDate(translation.getCreationDate()));
@@ -126,8 +127,8 @@ public class HistorySqlService {
         do {
             TranslationModel translationModel = new TranslationModel();
             translationModel.setId(cursor.getInt(idTextIndex));
-            translationModel.setOriginalText(cursor.getString(originalTextIndex));
-            translationModel.setTranslatedText(cursor.getString(translatedTextIndex));
+            translationModel.setOriginalText(cursor.getString(originalTextIndex).replaceAll("\'", "'"));
+            translationModel.setTranslatedText(cursor.getString(translatedTextIndex).replaceAll("\'", "'"));
             translationModel.setLanguage(cursor.getString(languageIndex));
             translationModel.setFavorite(cursor.getInt(favoritesIndex));
             translationModel.setCreationDate(cursor.getString(creationDateIndex));
@@ -164,8 +165,8 @@ public class HistorySqlService {
         do {
             TranslationModel translationModel = new TranslationModel();
             translationModel.setId(cursor.getInt(idTextIndex));
-            translationModel.setOriginalText(cursor.getString(originalTextIndex));
-            translationModel.setTranslatedText(cursor.getString(translatedTextIndex));
+            translationModel.setOriginalText(cursor.getString(originalTextIndex).replaceAll("\'", "'"));
+            translationModel.setTranslatedText(cursor.getString(translatedTextIndex).replaceAll("\'", "'"));
             translationModel.setLanguage(cursor.getString(languageIndex));
             translationModel.setFavorite(cursor.getInt(favoritesIndex));
             translationModel.setCreationDate(cursor.getString(creationDateIndex));

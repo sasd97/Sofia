@@ -9,7 +9,9 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +22,11 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.rengwuxian.materialedittext.MaterialEditText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,7 @@ import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.adapters.AlternativeTranslationAdapter;
 import sasd97.github.com.translator.ui.base.BaseFragment;
 import sasd97.github.com.translator.utils.ArrayUtils;
+import sasd97.github.com.translator.utils.ClearButtonAppearanceDetector;
 import sasd97.github.com.translator.utils.Dimens;
 import sasd97.github.com.translator.utils.Prefs;
 import sasd97.github.com.translator.utils.StopTypingDetector;
@@ -60,7 +62,8 @@ import static sasd97.github.com.translator.http.YandexAPIWrapper.translate;
 public class TranslateFragment extends BaseFragment
         implements AdapterView.OnItemSelectedListener,
         HttpResultListener,
-        StopTypingDetector.TypingListener {
+        StopTypingDetector.TypingListener,
+        ClearButtonAppearanceDetector.ClearButtonAppearanceListener {
 
     //region variables
 
@@ -85,10 +88,12 @@ public class TranslateFragment extends BaseFragment
     @BindView(R.id.translate_action_favorite) ImageView favoritesActionImageView;
     @BindView(R.id.translate_target_language_spinner) Spinner targetLanguageSpinner;
     @BindView(R.id.translate_destination_language_spinner) Spinner destinationLanguageSpinner;
-    @BindView(R.id.translate_input_edittext) MaterialEditText translateInputEditText;
+    @BindView(R.id.translate_input_edittext) EditText translateInputEditText;
+    @BindView(R.id.translate_symbol_counter_textview) TextView symbolCounterTextView;
     @BindView(R.id.translate_lanugage_holder_textview) TextView translationLanguageHolderTitleTextView;
     @BindView(R.id.translate_primary_translation_textview) TextView primaryTranslationTextView;
     @BindView(R.id.translate_scrollview) View translateScrollView;
+    @BindView(R.id.translate_clear_button) View clearTranslateView;
     @BindView(R.id.translate_alternative_translation_cardview) View alternativeTranslationCardView;
     @BindView(R.id.translate_alternative_translation_recyclerview) RecyclerView alternativeTranslationRecyclerView;
 
@@ -140,6 +145,23 @@ public class TranslateFragment extends BaseFragment
         handler = new Handler();
         stopTypingDetector = new StopTypingDetector(handler, this);
         translateInputEditText.addTextChangedListener(stopTypingDetector);
+        translateInputEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                symbolCounterTextView.setText(getString(R.string.translate_format_counter, editable.length()));
+            }
+        });
+        translateInputEditText.addTextChangedListener(new ClearButtonAppearanceDetector(this));
 
         onLanguagesInit();
 
@@ -327,7 +349,7 @@ public class TranslateFragment extends BaseFragment
 
     @Override
     public void onStopTyping() {
-        if (TextUtils.isEmpty(translateInputEditText.getText())) return;
+        if (TextUtils.isEmpty(translateInputEditText.getText().toString().trim())) return;
 
         activeQuery = translate(translateInputEditText.getText().toString(),
                 targetLanguage.getCortege(destinationLanguage),
@@ -366,6 +388,26 @@ public class TranslateFragment extends BaseFragment
         if (translation.isFavorite())
             favoritesActionImageView.setImageResource(R.drawable.ic_favorite_white_24dp);
         else favoritesActionImageView.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+    }
+
+    @OnClick(R.id.translate_clear_button)
+    public void onClearClick(View v) {
+        translateInputEditText.setText("");
+    }
+
+    @Override
+    public void onShowCloseButton() {
+        clearTranslateView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onHideCloseButton() {
+        clearTranslateView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean isShown() {
+        return clearTranslateView.getVisibility() == View.VISIBLE;
     }
 
     //endregion

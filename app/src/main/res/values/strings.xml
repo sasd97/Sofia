@@ -60,6 +60,8 @@
     <string name="translate_toast_text_was_copied">Text copied to clipboard</string>
     <string name="translate_alternative_translation_title">Alternative translations</string>
     <string name="translate_action_share_via">Share via</string>
+    <string name="translate_empty_counter">0/200</string>
+    <string name="translate_format_counter">%1$d/200</string>
 
     <!-- Endregion -->
 </resources>

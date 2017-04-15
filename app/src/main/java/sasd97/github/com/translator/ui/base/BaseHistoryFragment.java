@@ -3,21 +3,28 @@ package sasd97.github.com.translator.ui.base;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.OnClick;
+import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
+import sasd97.github.com.translator.utils.ClearButtonAppearanceDetector;
 import sasd97.github.com.translator.utils.SearchDetector;
 
 /**
  * Created by alexander on 12/04/2017.
  */
 
-public abstract class BaseHistoryFragment extends BaseFragment implements SearchDetector.OnSearchListener {
+public abstract class BaseHistoryFragment extends BaseFragment
+        implements SearchDetector.OnSearchListener,
+        ClearButtonAppearanceDetector.ClearButtonAppearanceListener {
 
     private static final int MODE_OBTAIN = 0;
     private static final int MODE_FILTER = 1;
@@ -25,6 +32,9 @@ public abstract class BaseHistoryFragment extends BaseFragment implements Search
     protected String searchQuery;
     protected WeakHandler weakHandler;
     protected List<TranslationModel> translations;
+
+    @BindView(R.id.search_clear_button) public View searchClearButton;
+    @BindView(R.id.search_input_edittext) public EditText searchInputEditText;
 
     protected final Runnable filterHistory = new Runnable() {
         @Override
@@ -72,6 +82,8 @@ public abstract class BaseHistoryFragment extends BaseFragment implements Search
     protected void onViewCreate() {
         super.onViewCreate();
         weakHandler = new WeakHandler(this);
+
+        searchInputEditText.addTextChangedListener(new ClearButtonAppearanceDetector(this));
     }
 
     private static class WeakHandler extends Handler {
@@ -118,5 +130,25 @@ public abstract class BaseHistoryFragment extends BaseFragment implements Search
         searchQuery = query;
         Thread t = new Thread(filterHistory);
         t.start();
+    }
+
+    @OnClick(R.id.search_clear_button)
+    public void onClearButton() {
+        searchInputEditText.setText("");
+    }
+
+    @Override
+    public void onShowCloseButton() {
+        searchClearButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onHideCloseButton() {
+        searchClearButton.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean isShown() {
+        return searchClearButton.getVisibility() == View.VISIBLE;
     }
 }

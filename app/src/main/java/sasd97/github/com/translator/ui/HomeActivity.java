@@ -3,6 +3,7 @@ package sasd97.github.com.translator.ui;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -74,7 +75,6 @@ public class HomeActivity extends BaseActivity
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_fragment_container, fragment)
-                .addToBackStack(null)
                 .commit();
     }
 

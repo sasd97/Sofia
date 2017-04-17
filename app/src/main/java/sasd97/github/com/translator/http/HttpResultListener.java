@@ -5,8 +5,6 @@ package sasd97.github.com.translator.http;
  */
 
 public interface HttpResultListener {
-
     <T> void onHttpSuccess(T result);
     void onHttpError(HttpError error);
-    void onHttpCanceled();
 }

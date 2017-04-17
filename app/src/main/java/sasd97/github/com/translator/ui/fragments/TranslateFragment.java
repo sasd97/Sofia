@@ -3,21 +3,27 @@ package sasd97.github.com.translator.ui.fragments;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationSet;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +57,6 @@ import static sasd97.github.com.translator.http.YandexAPIWrapper.translate;
 
 public class TranslateFragment extends BaseFragment
         implements AdapterView.OnItemSelectedListener,
-        HttpResultListener,
         StopTypingDetector.TypingListener,
         ClearButtonAppearanceDetector.ClearButtonAppearanceListener {
 
@@ -80,7 +85,7 @@ public class TranslateFragment extends BaseFragment
     @BindView(R.id.translate_symbol_counter_textview) TextView symbolCounterTextView;
     @BindView(R.id.translate_lanugage_holder_textview) TextView translationLanguageHolderTitleTextView;
     @BindView(R.id.translate_primary_translation_textview) TextView primaryTranslationTextView;
-    @BindView(R.id.translate_scrollview) View translateScrollView;
+    @BindView(R.id.translate_scrollview) NestedScrollView translateScrollView;
     @BindView(R.id.translate_clear_button) View clearTranslateView;
     @BindView(R.id.translate_alternative_translation_cardview) View alternativeTranslationCardView;
     @BindView(R.id.translate_alternative_translation_recyclerview) RecyclerView alternativeTranslationRecyclerView;
@@ -166,10 +171,10 @@ public class TranslateFragment extends BaseFragment
         destinationLanguageSpinner.setOnItemSelectedListener(this);
 
         alternativeTranslationAdapter = new AlternativeTranslationAdapter();
-        alternativeTranslationRecyclerView.setHasFixedSize(true);
-        alternativeTranslationRecyclerView.setNestedScrollingEnabled(false);
         alternativeTranslationRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         alternativeTranslationRecyclerView.setAdapter(alternativeTranslationAdapter);
+        alternativeTranslationRecyclerView.setHasFixedSize(true);
+        alternativeTranslationRecyclerView.setNestedScrollingEnabled(false);
 
         if (getArguments() != null) onArgsExists(getArguments());
         else onPrefsInit();
@@ -221,16 +226,10 @@ public class TranslateFragment extends BaseFragment
 
     //region views animation
 
-    private void showTranslationViews(boolean isShowingBoth) {
-        if (translateScrollView.getVisibility() == View.VISIBLE) {
-            if (!isShowingBoth) AnimationUtils.fadeIn(alternativeTranslationCardView);
-            return;
-        }
-
+    private AnimationSet showTranslationViews(boolean isShowingBoth) {
         if (isShowingBoth) alternativeTranslationCardView.setVisibility(View.VISIBLE);
         else alternativeTranslationCardView.setVisibility(View.INVISIBLE);
-
-        AnimationUtils.fadeIn(translateScrollView);
+        return AnimationUtils.fadeIn(translateScrollView);
     }
 
     //endregion
@@ -285,11 +284,24 @@ public class TranslateFragment extends BaseFragment
     @Override
     public void onStopTyping() {
         if (TextUtils.isEmpty(translateInputEditText.getText().toString().trim())) return;
+        AnimationUtils.fadeOut(translateScrollView);
 
         activeQuery = translate(
                 translateInputEditText.getText().toString(),
                 languageRepository.obtainCortege(),
-                this);
+                new HttpResultListener() {
+                    @Override
+                    public <T> void onHttpSuccess(T result) {
+                        if (result instanceof TranslationModel) {
+                            handleTranslationResponse((TranslationModel) result);
+                        }
+                    }
+
+                    @Override
+                    public void onHttpError(HttpError error) {
+                        showErrorDialog();
+                    }
+                });
     }
 
     @Override
@@ -333,31 +345,7 @@ public class TranslateFragment extends BaseFragment
 
     //endregion
 
-    // region http results & handlers
-
-    @Override
-    public <T> void onHttpSuccess(T result) {
-        if (result == null) return;
-
-        if (result instanceof TranslationModel) {
-            handleTranslationResponse((TranslationModel) result);
-            return;
-        }
-
-        if (result instanceof DictionaryModel) {
-            handleDictionaryResponse((DictionaryModel) result);
-        }
-    }
-
-    @Override
-    public void onHttpError(HttpError error) {
-        Log.d(TAG, "There was an error while obtain request");
-    }
-
-    @Override
-    public void onHttpCanceled() {
-        Log.d(TAG, "Response was canceled");
-    }
+    // region http handlers
 
     private void handleTranslationResponse(TranslationModel translationModel) {
         translationLanguageHolderTitleTextView.setText(languageRepository.getDestinationLanguage().name());
@@ -370,15 +358,28 @@ public class TranslateFragment extends BaseFragment
         if (translateInputEditText.getText().toString().trim().contains(" ")) {
             showTranslationViews(false);
         } else {
-            showTranslationViews(true);
-            lookup(translationModel.getOriginalText(), translationModel.getLanguage(), this);
+            lookup(translationModel.getOriginalText(),
+                    translationModel.getLanguage(),
+                    new HttpResultListener() {
+                        @Override
+                        public <T> void onHttpSuccess(T result) {
+                            if (result instanceof DictionaryModel) {
+                                handleDictionaryResponse((DictionaryModel) result);
+                            }
+                        }
+
+                        @Override
+                        public void onHttpError(HttpError error) {
+                            showTranslationViews(false);
+                        }
+                    });
         }
     }
 
     private void handleDictionaryResponse(DictionaryModel dictionaryModel) {
         List<DefinitionDictionaryModel> definitions = dictionaryModel.getDefinition();
         if (definitions == null || definitions.isEmpty()) return;
-        Log.d(TAG, definitions + "");
+
         List<TranslationDictionaryModel> translations = new ArrayList<>();
 
         for (DefinitionDictionaryModel definition: definitions) {
@@ -388,6 +389,8 @@ public class TranslateFragment extends BaseFragment
         alternativeTranslationAdapter.clear();
         alternativeTranslationAdapter.addTranslations(translations);
         recalculateAlternativeTranslationRVHeight();
+
+        showTranslationViews(true);
     }
 
     //endregion
@@ -409,6 +412,19 @@ public class TranslateFragment extends BaseFragment
     //endregion
 
     //region utils
+
+    private boolean validateForm() {
+        //todo: validate
+        return false;
+    }
+
+    private void showErrorDialog() {
+        new MaterialDialog.Builder(getActivity())
+                .title(R.string.error_dialog_title)
+                .content(R.string.error_dialog_content)
+                .positiveText(R.string.error_dialog_ok)
+                .show();
+    }
 
     private void changeFavoriteAction(TranslationModel translation) {
         if (translation.isFavorite()) favoritesActionImageView.setImageResource(R.drawable.ic_favorite_white_24dp);

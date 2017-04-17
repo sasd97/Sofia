@@ -6,6 +6,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
+import android.widget.ScrollView;
 
 /**
  * Created by alexander on 17/04/2017.
@@ -56,10 +57,12 @@ public class AnimationUtils {
     }
 
     public static AnimationSet fadeOut(final View view) {
-        return obtainFadeAnimation(view, 1.0f, 0.0f, 0.0f, 0.0f, 500L, View.INVISIBLE);
+        if (view.getVisibility() == View.INVISIBLE) return null;
+        return obtainFadeAnimation(view, 1.0f, 0.0f, 0.0f, 0.0f, 50L, View.INVISIBLE);
     }
 
     public static AnimationSet fadeIn(final View view) {
+        if (view.getVisibility() == View.VISIBLE) return null;
         return obtainFadeAnimation(view, 0.0f, 1.0f, 1.0f, 0.0f, 500L, View.VISIBLE);
     }
 }

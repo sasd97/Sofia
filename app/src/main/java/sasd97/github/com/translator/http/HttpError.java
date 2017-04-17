@@ -6,6 +6,8 @@ package sasd97.github.com.translator.http;
 
 public class HttpError {
 
+    public static final HttpError UNKNOWN = new HttpError(500, "Unknown error");
+
     private int code;
     private String message;
 

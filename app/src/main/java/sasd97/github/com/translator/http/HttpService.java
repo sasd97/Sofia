@@ -10,6 +10,8 @@ import sasd97.github.com.translator.constants.YandexAPIConstants;
 
 public class HttpService {
 
+    private static Retrofit retrofit;
+
     private static YandexTranslatorAPI yandexTranslatorAPI;
     private static YandexDictionaryAPI yandexDictionaryAPI;
 
@@ -17,7 +19,7 @@ public class HttpService {
 
     public static void init() {
 
-        Retrofit retrofit = new Retrofit
+        retrofit = new Retrofit
                 .Builder()
                 .baseUrl(YandexAPIConstants.SERVER_URL_TRANSLATOR)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -32,6 +34,10 @@ public class HttpService {
                 .build();
 
         yandexDictionaryAPI = retrofit.create(YandexDictionaryAPI.class);
+    }
+
+    public static Retrofit getRestClient() {
+        return retrofit;
     }
 
     public static YandexTranslatorAPI translatorAPI() {

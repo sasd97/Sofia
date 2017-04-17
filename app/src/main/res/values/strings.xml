@@ -2,6 +2,14 @@
     <string name="app_name">Sophia</string>
     <string name="all_search">Type to start search</string>
 
+    <!-- Region Error dialog -->
+
+    <string name="error_dialog_title">Error</string>
+    <string name="error_dialog_content">Content</string>
+    <string name="error_dialog_ok">OK</string>
+
+    <!--Endregion -->
+
     <!-- Region Home Activity -->
 
     <string name="bottom_navigation_translate_title">Translate</string>

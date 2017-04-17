@@ -17,8 +17,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignBottom="@+id/search_layout"
-            android:layout_marginLeft="4dp"
-            android:layout_marginStart="4dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_search_black_24dp" />
 
@@ -43,7 +43,8 @@
                 android:gravity="top"
                 android:hint="@string/all_search"
                 android:maxLength="20"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:singleLine="true" />
 
         </android.support.design.widget.TextInputLayout>
 

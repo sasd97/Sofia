@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import sasd97.github.com.translator.database.DatabaseConnector;
 import sasd97.github.com.translator.http.HttpService;
+import sasd97.github.com.translator.utils.ShareUtils;
 import sasd97.github.com.translator.utils.Prefs;
 
 /**
@@ -24,6 +25,7 @@ public class SofiaApp extends Application {
 
         HttpService.init();
         Prefs.init(this);
+        ShareUtils.init(this);
     }
 
     public static SQLiteDatabase db() {

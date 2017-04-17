@@ -11,11 +11,9 @@ import butterknife.BindView;
 import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.events.OnTranslationChangedListener;
 import sasd97.github.com.translator.models.TranslationModel;
-import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.adapters.HistoryAdapter;
-import sasd97.github.com.translator.ui.base.BaseFragment;
 import sasd97.github.com.translator.ui.base.BaseHistoryFragment;
-import sasd97.github.com.translator.utils.SearchDetector;
+import sasd97.github.com.translator.utils.watchers.SearchDetector;
 
 /**
  * Created by alexander on 10/04/2017.

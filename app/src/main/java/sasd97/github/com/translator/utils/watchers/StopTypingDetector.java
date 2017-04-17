@@ -1,9 +1,8 @@
-package sasd97.github.com.translator.utils;
+package sasd97.github.com.translator.utils.watchers;
 
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 
 /**
  * Created by alexander on 08.04.17.
@@ -17,7 +16,7 @@ public class StopTypingDetector implements TextWatcher {
         void onStopTyping();
     }
 
-    private long delay = 1000;
+    private long delay = 1500;
     private long lastTextEdit = 0;
 
     private Handler handler;

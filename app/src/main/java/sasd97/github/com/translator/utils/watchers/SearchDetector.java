@@ -1,4 +1,4 @@
-package sasd97.github.com.translator.utils;
+package sasd97.github.com.translator.utils.watchers;
 
 import android.support.annotation.NonNull;
 import android.text.Editable;

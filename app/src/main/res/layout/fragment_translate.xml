@@ -129,6 +129,7 @@
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentRight="true"
                         android:text="@string/translate_empty_counter"
+                        android:layout_margin="8dp"
                         tools:text="1/200"/>
                 </RelativeLayout>
             </LinearLayout>

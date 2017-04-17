@@ -15,8 +15,8 @@ import butterknife.OnClick;
 import sasd97.github.com.translator.R;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
-import sasd97.github.com.translator.utils.ClearButtonAppearanceDetector;
-import sasd97.github.com.translator.utils.SearchDetector;
+import sasd97.github.com.translator.utils.watchers.ClearButtonAppearanceDetector;
+import sasd97.github.com.translator.utils.watchers.SearchDetector;
 
 /**
  * Created by alexander on 12/04/2017.

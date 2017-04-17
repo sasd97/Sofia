@@ -1,6 +1,5 @@
 package sasd97.github.com.translator.utils;
 
-import android.util.Log;
 import android.widget.Spinner;
 
 /**
@@ -21,11 +20,11 @@ public class SpinnerUtils {
 
     public static boolean isSelectedByUser(Spinner spinner) {
         if (spinner == null) return false;
-        if (spinner.getTag() == null) return false;
-
-        int tag = (Integer) spinner.getTag();
-        spinner.setTag(SPINNER_NON_PROGRAMMING_FLAG);
-
-        return tag != SPINNER_PROGRAMMING_FLAG;
+        if (spinner.getTag() != null) {
+            int tag = (Integer) spinner.getTag();
+            spinner.setTag(SPINNER_NON_PROGRAMMING_FLAG);
+            return tag != SPINNER_PROGRAMMING_FLAG;
+        }
+        return true;
     }
 }

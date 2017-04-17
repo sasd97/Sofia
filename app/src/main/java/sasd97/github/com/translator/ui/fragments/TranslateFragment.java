@@ -76,6 +76,7 @@ public class TranslateFragment extends BaseFragment
     @BindArray(R.array.all_languages) String[] allAvailableLanguagesList;
     @BindString(R.string.all_automatic_language) String automaticLanguageRecognitionString;
 
+    @BindView(R.id.spinner) View spinner;
     @BindView(R.id.translate_action_favorite) ImageView favoritesActionImageView;
     @BindView(R.id.translate_target_language_spinner) Spinner targetLanguageSpinner;
     @BindView(R.id.translate_destination_language_spinner) Spinner destinationLanguageSpinner;
@@ -227,7 +228,13 @@ public class TranslateFragment extends BaseFragment
     private AnimationSet showTranslationViews(boolean isShowingBoth) {
         if (isShowingBoth) alternativeTranslationCardView.setVisibility(View.VISIBLE);
         else alternativeTranslationCardView.setVisibility(View.INVISIBLE);
+        AnimationUtils.fadeOut(spinner);
         return AnimationUtils.fadeIn(translateScrollView);
+    }
+
+    private void showSpinner() {
+        AnimationUtils.fadeOut(translateScrollView);
+        spinner.setVisibility(View.VISIBLE);
     }
 
     //endregion
@@ -282,7 +289,7 @@ public class TranslateFragment extends BaseFragment
     @Override
     public void onStopTyping() {
         if (TextUtils.isEmpty(translateInputEditText.getText().toString().trim())) return;
-        AnimationUtils.fadeOut(translateScrollView);
+        showSpinner();
 
         activeQuery = translate(
                 translateInputEditText.getText().toString(),
@@ -376,7 +383,10 @@ public class TranslateFragment extends BaseFragment
 
     private void handleDictionaryResponse(DictionaryModel dictionaryModel) {
         List<DefinitionDictionaryModel> definitions = dictionaryModel.getDefinition();
-        if (definitions == null || definitions.isEmpty()) return;
+        if (definitions == null || definitions.isEmpty()) {
+            showTranslationViews(false);
+            return;
+        }
 
         List<TranslationDictionaryModel> translations = new ArrayList<>();
 
@@ -417,6 +427,7 @@ public class TranslateFragment extends BaseFragment
     }
 
     private void showErrorDialog() {
+        AnimationUtils.fadeOut(spinner);
         new MaterialDialog.Builder(getActivity())
                 .title(R.string.error_dialog_title)
                 .content(R.string.error_dialog_content)

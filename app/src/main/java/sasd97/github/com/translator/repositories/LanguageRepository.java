@@ -1,7 +1,6 @@
 package sasd97.github.com.translator.repositories;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import sasd97.github.com.translator.models.SupportedLanguageModel;
 import sasd97.github.com.translator.models.TranslationModel;
@@ -52,9 +51,7 @@ public class LanguageRepository {
     }
 
     public LanguageRepository setTargetFromLongName(String longName) {
-        Log.d(TAG, longName);
         targetLanguage = SupportedLanguageModel.fromLongString(longName);
-        Log.d(TAG, targetLanguage.name());
         return this;
     }
 

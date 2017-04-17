@@ -156,6 +156,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         notifyItemRemoved(position);
     }
 
+    public void removeAllHistories() {
+        int oldLength = translations.size();
+        translations.clear();
+        notifyItemRangeRemoved(0, oldLength);
+    }
+
     @Override
     public int getItemCount() {
         return translations.size();

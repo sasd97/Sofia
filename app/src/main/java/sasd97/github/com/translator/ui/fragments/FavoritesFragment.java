@@ -89,11 +89,8 @@ public class FavoritesFragment extends BaseHistoryFragment
     }
 
     @Override
-    public void onRemoveFavorite(int position) {
+    public void onRemoveFavorite(int position, TranslationModel translation) {
+        translations.remove(translation);
         historyAdapter.removeHistory(position);
-    }
-
-    @Override
-    public void onDelete(int position) {
     }
 }

@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationSet;
@@ -239,11 +240,10 @@ public class TranslateFragment extends BaseFragment
         if (translationRepository.getDictionary() == null) {
             if(!isDictionary(translationRepository.getTranslation())) {
                 setupTranslationView();
-                return;
+            } else {
+                showSpinner();
+                loadDictionary();
             }
-
-            showSpinner();
-            loadDictionary();
         } else {
             setupTranslationAndDictionaryViews();
         }
@@ -267,6 +267,7 @@ public class TranslateFragment extends BaseFragment
         AnimationUtils.fadeOut(spinner);
         if (isShowingBoth) alternativeTranslationCardView.setVisibility(View.VISIBLE);
         else alternativeTranslationCardView.setVisibility(View.INVISIBLE);
+        primaryTranslationTextView.setVisibility(View.VISIBLE);
         return AnimationUtils.fadeIn(translateScrollView);
     }
 
@@ -330,7 +331,6 @@ public class TranslateFragment extends BaseFragment
     public void onStopTyping() {
         if (!validateForm()) return;
         String textToTranslate = translateInputEditText.getText().toString().trim();
-
         if (TextUtils.isEmpty(textToTranslate)) return;
 
         showSpinner();

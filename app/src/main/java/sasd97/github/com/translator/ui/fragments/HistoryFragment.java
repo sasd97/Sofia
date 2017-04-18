@@ -49,9 +49,9 @@ public class HistoryFragment extends BaseHistoryFragment
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
             final int positionToDelete = viewHolder.getAdapterPosition();
-            final TranslationModel translationToDelete = translations.get(positionToDelete);
-            translations.remove(positionToDelete);
+            final TranslationModel translationToDelete = historyAdapter.get(positionToDelete);
             historyAdapter.removeHistory(positionToDelete);
+            translations.remove(translationToDelete);
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {

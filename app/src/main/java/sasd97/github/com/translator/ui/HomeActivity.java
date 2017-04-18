@@ -53,6 +53,8 @@ public class HomeActivity extends BaseActivity
                 .beginTransaction()
                 .add(R.id.home_fragment_container, new TranslateFragment())
                 .commit();
+
+        bottomNavigationView.setSelectedItemId(R.id.bottom_navigation_translate);
     }
 
     @Override

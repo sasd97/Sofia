@@ -37,8 +37,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     }
 
     public interface HistoryInteractionListener {
-        void onRemoveFavorite(int position);
-        void onDelete(int position);
+        void onRemoveFavorite(int position, TranslationModel translation);
     }
 
     private final int yandexTextColor = Color.parseColor("#44FFCC00");
@@ -96,7 +95,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
             if (historyInteractionListener == null) return;
             if (!translation.isFavorite())
-                historyInteractionListener.onRemoveFavorite(getAdapterPosition());
+                historyInteractionListener.onRemoveFavorite(getAdapterPosition(), translation);
         }
 
         private Spannable highlightFoundedText(String searchQuery, String highlightedText, int background) {
@@ -137,6 +136,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
         if (translation.isFavorite()) holder.favoriteImageView.setImageResource(R.drawable.ic_favorite_black_24dp);
         else holder.favoriteImageView.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+    }
+
+    public TranslationModel get(int position) {
+        return translations.get(position);
     }
 
     public void filterHistories(List<TranslationModel> translations, String searchQuery) {

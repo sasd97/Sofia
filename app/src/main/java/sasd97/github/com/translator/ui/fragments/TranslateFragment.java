@@ -237,7 +237,11 @@ public class TranslateFragment extends BaseFragment
         translateInputEditText.setText(translationRepository.getTranslation().getOriginalText());
 
         if (translationRepository.getDictionary() == null) {
-            if(!isDictionary(translationRepository.getTranslation())) return;
+            if(!isDictionary(translationRepository.getTranslation())) {
+                setupTranslationView();
+                return;
+            }
+
             showSpinner();
             loadDictionary();
         } else {

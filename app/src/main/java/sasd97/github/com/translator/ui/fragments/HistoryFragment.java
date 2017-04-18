@@ -130,7 +130,7 @@ public class HistoryFragment extends BaseHistoryFragment
     @Override
     public void onObtain(List<TranslationModel> translations) {
         historyAdapter.addHistories(translations);
-        if (translations.isEmpty()) clearAllFab.hide();
+        if (!translations.isEmpty()) clearAllFab.show();
     }
 
     @Override

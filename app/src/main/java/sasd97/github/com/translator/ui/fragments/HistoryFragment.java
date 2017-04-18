@@ -1,5 +1,6 @@
 package sasd97.github.com.translator.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,10 +18,7 @@ import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.adapters.HistoryAdapter;
 import sasd97.github.com.translator.ui.base.BaseHistoryFragment;
-import sasd97.github.com.translator.utils.Prefs;
 import sasd97.github.com.translator.utils.watchers.SearchDetector;
-
-import static sasd97.github.com.translator.SofiaApp.db;
 
 /**
  * Created by alexander on 10/04/2017.
@@ -36,8 +34,10 @@ public class HistoryFragment extends BaseHistoryFragment
     private ItemTouchHelper itemTouchHelper;
     private OnTranslationChangedListener translationChangedListener;
 
-    @BindView(R.id.fab) FloatingActionButton clearAllFab;
-    @BindView(R.id.history_recyclerview) RecyclerView historyRecyclerView;
+    @BindView(R.id.fab)
+    FloatingActionButton clearAllFab;
+    @BindView(R.id.history_recyclerview)
+    RecyclerView historyRecyclerView;
 
     private ItemTouchHelper.SimpleCallback swipeToDismissListener = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
@@ -62,19 +62,20 @@ public class HistoryFragment extends BaseHistoryFragment
         }
     };
 
-    public static HistoryFragment newInstance(OnTranslationChangedListener translationChangedListener) {
-        HistoryFragment historyFragment = new HistoryFragment();
-        historyFragment.setTranslationChangedListener(translationChangedListener);
-        return historyFragment;
-    }
-
-    public void setTranslationChangedListener(OnTranslationChangedListener translationChangedListener) {
-        this.translationChangedListener = translationChangedListener;
-    }
-
     @Override
     protected int getLayout() {
         return R.layout.fragment_history;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            setTranslationChangedListener((OnTranslationChangedListener) getActivity());
+        } catch (ClassCastException classCastException) {
+            classCastException.printStackTrace();
+        }
     }
 
     @Override
@@ -107,6 +108,10 @@ public class HistoryFragment extends BaseHistoryFragment
         t.start();
     }
 
+    public void setTranslationChangedListener(OnTranslationChangedListener translationChangedListener) {
+        this.translationChangedListener = translationChangedListener;
+    }
+
     @OnClick(R.id.fab)
     public void onClearAllClick(View v) {
         translations.clear();
@@ -135,7 +140,7 @@ public class HistoryFragment extends BaseHistoryFragment
 
     @Override
     public void onSelect(TranslationModel translation, int position) {
-        translationChangedListener.onTranslationChanged(translation);
+        translationChangedListener.onTranslationChanged(translation, null);
         translationChangedListener.onFragmentNeedToBeSwitched(0);
     }
 }

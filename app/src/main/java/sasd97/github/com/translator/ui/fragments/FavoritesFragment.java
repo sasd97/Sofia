@@ -1,5 +1,6 @@
 package sasd97.github.com.translator.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,22 +29,25 @@ public class FavoritesFragment extends BaseHistoryFragment
     private HistoryAdapter historyAdapter;
     private OnTranslationChangedListener translationChangedListener;
 
-    @BindView(R.id.search_input_edittext) EditText searchInputEditText;
-    @BindView(R.id.favorites_recyclerview) RecyclerView favoritesRecyclerView;
-
-    public static FavoritesFragment newInstance(OnTranslationChangedListener translationChangedListener) {
-        FavoritesFragment favoritesFragment = new FavoritesFragment();
-        favoritesFragment.setTranslationChangedListener(translationChangedListener);
-        return favoritesFragment;
-    }
-
-    public void setTranslationChangedListener(OnTranslationChangedListener translationChangedListener) {
-        this.translationChangedListener = translationChangedListener;
-    }
+    @BindView(R.id.search_input_edittext)
+    EditText searchInputEditText;
+    @BindView(R.id.favorites_recyclerview)
+    RecyclerView favoritesRecyclerView;
 
     @Override
     protected int getLayout() {
         return R.layout.fragment_favorites;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            setTranslationChangedListener((OnTranslationChangedListener) getActivity());
+        } catch (ClassCastException classCastException) {
+            classCastException.printStackTrace();
+        }
     }
 
     @Override
@@ -64,6 +68,10 @@ public class FavoritesFragment extends BaseHistoryFragment
         t.start();
     }
 
+    public void setTranslationChangedListener(OnTranslationChangedListener translationChangedListener) {
+        this.translationChangedListener = translationChangedListener;
+    }
+
     @Override
     public void onObtain(List<TranslationModel> translations) {
         historyAdapter.addHistories(translations);
@@ -76,7 +84,7 @@ public class FavoritesFragment extends BaseHistoryFragment
 
     @Override
     public void onSelect(TranslationModel translation, int position) {
-        translationChangedListener.onTranslationChanged(translation);
+        translationChangedListener.onTranslationChanged(translation, null);
         translationChangedListener.onFragmentNeedToBeSwitched(OnTranslationChangedListener.TRANSLATE_FRAGMENT);
     }
 
@@ -86,5 +94,6 @@ public class FavoritesFragment extends BaseHistoryFragment
     }
 
     @Override
-    public void onDelete(int position) {}
+    public void onDelete(int position) {
+    }
 }

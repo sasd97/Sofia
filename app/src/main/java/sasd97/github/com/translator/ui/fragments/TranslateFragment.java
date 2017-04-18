@@ -1,21 +1,20 @@
 package sasd97.github.com.translator.ui.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationSet;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindArray;
+import butterknife.BindColor;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -40,6 +40,7 @@ import sasd97.github.com.translator.models.Dictionary.DictionaryModel;
 import sasd97.github.com.translator.models.Dictionary.TranslationDictionaryModel;
 import sasd97.github.com.translator.models.TranslationModel;
 import sasd97.github.com.translator.repositories.LanguageRepository;
+import sasd97.github.com.translator.repositories.TranslationRepository;
 import sasd97.github.com.translator.services.HistorySqlService;
 import sasd97.github.com.translator.ui.adapters.AlternativeTranslationAdapter;
 import sasd97.github.com.translator.ui.base.BaseFragment;
@@ -50,6 +51,8 @@ import sasd97.github.com.translator.utils.watchers.ClearButtonAppearanceDetector
 import sasd97.github.com.translator.utils.watchers.StopTypingDetector;
 
 import static sasd97.github.com.translator.constants.ViewConstants.ALTERNATIVE_TRANSLATION_VIEW_HEIGHT;
+import static sasd97.github.com.translator.constants.ViewConstants.SPACE;
+import static sasd97.github.com.translator.constants.ViewConstants.TRANSLATION_LIMIT;
 import static sasd97.github.com.translator.http.YandexAPIWrapper.lookup;
 import static sasd97.github.com.translator.http.YandexAPIWrapper.translate;
 
@@ -67,51 +70,57 @@ public class TranslateFragment extends BaseFragment
     private Call<?> activeQuery;
 
     private String[] targetLanguagesList;
-    private TranslationModel currentTranslation;
     private StopTypingDetector stopTypingDetector;
     private OnTranslationChangedListener listener;
     private AlternativeTranslationAdapter alternativeTranslationAdapter;
+
     private LanguageRepository languageRepository = new LanguageRepository();
+    private TranslationRepository translationRepository = new TranslationRepository();
 
-    @BindArray(R.array.all_languages) String[] allAvailableLanguagesList;
-    @BindString(R.string.all_automatic_language) String automaticLanguageRecognitionString;
+    @BindString(R.string.all_automatic_language)
+    String automaticLanguageRecognitionString;
+    @BindArray(R.array.all_languages)
+    String[] allAvailableLanguagesList;
+    @BindColor(R.color.colorGreyDark)
+    int greyColor;
+    @BindColor(R.color.colorRed)
+    int redColor;
 
-    @BindView(R.id.spinner) View spinner;
-    @BindView(R.id.translate_action_favorite) ImageView favoritesActionImageView;
-    @BindView(R.id.translate_target_language_spinner) Spinner targetLanguageSpinner;
-    @BindView(R.id.translate_destination_language_spinner) Spinner destinationLanguageSpinner;
-    @BindView(R.id.translate_input_edittext) EditText translateInputEditText;
-    @BindView(R.id.translate_symbol_counter_textview) TextView symbolCounterTextView;
-    @BindView(R.id.translate_lanugage_holder_textview) TextView translationLanguageHolderTitleTextView;
-    @BindView(R.id.translate_primary_translation_textview) TextView primaryTranslationTextView;
-    @BindView(R.id.translate_scrollview) NestedScrollView translateScrollView;
-    @BindView(R.id.translate_clear_button) View clearTranslateView;
-    @BindView(R.id.translate_alternative_translation_cardview) View alternativeTranslationCardView;
-    @BindView(R.id.translate_alternative_translation_recyclerview) RecyclerView alternativeTranslationRecyclerView;
+    @BindView(R.id.spinner)
+    View spinner;
+    @BindView(R.id.translate_action_favorite)
+    ImageView favoritesActionImageView;
+    @BindView(R.id.translate_target_language_spinner)
+    Spinner targetLanguageSpinner;
+    @BindView(R.id.translate_destination_language_spinner)
+    Spinner destinationLanguageSpinner;
+    @BindView(R.id.translate_input_edittext)
+    TextInputEditText translateInputEditText;
+    @BindView(R.id.translate_symbol_counter_textview)
+    TextView symbolCounterTextView;
+    @BindView(R.id.translate_lanugage_holder_textview)
+    TextView translationLanguageHolderTitleTextView;
+    @BindView(R.id.translate_primary_translation_textview)
+    TextView primaryTranslationTextView;
+    @BindView(R.id.translate_scrollview)
+    NestedScrollView translateScrollView;
+    @BindView(R.id.translate_clear_button)
+    View clearTranslateView;
+    @BindView(R.id.translate_alternative_translation_cardview)
+    View alternativeTranslationCardView;
+    @BindView(R.id.translate_alternative_translation_recyclerview)
+    RecyclerView alternativeTranslationRecyclerView;
 
     //endregion
 
     //region fabric methods
 
-    @Override
-    protected int getLayout() {
-        return R.layout.fragment_translate;
-    }
-
-    public static TranslateFragment newInstance(@NonNull OnTranslationChangedListener listener) {
+    public static TranslateFragment getInstance(TranslationRepository translationRepository) {
         TranslateFragment translateFragment = new TranslateFragment();
-        translateFragment.setTranslationChangedListener(listener);
-        return translateFragment;
-    }
 
-    public static TranslateFragment newInstance(TranslationModel translation,
-                                                OnTranslationChangedListener listener) {
-        TranslateFragment translateFragment = new TranslateFragment();
-        translateFragment.setTranslationChangedListener(listener);
-
-        if (translation != null) {
+        if (translationRepository != null && !translationRepository.isEmpty()) {
             Bundle bundle = new Bundle();
-            bundle.putParcelable(TRANSLATION_ARG, translation);
+            bundle.putParcelable(TRANSLATION_ARG, translationRepository);
             translateFragment.setArguments(bundle);
         }
 
@@ -120,15 +129,23 @@ public class TranslateFragment extends BaseFragment
 
     //endregion
 
-    //region setters & getters
+    //region initialization
 
-    public void setTranslationChangedListener(OnTranslationChangedListener listener) {
-        this.listener = listener;
+    @Override
+    protected int getLayout() {
+        return R.layout.fragment_translate;
     }
 
-    //endregion
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-    //region initialization
+        try {
+            setTranslationChangedListener((OnTranslationChangedListener) getActivity());
+        } catch (ClassCastException classCastException) {
+            classCastException.printStackTrace();
+        }
+    }
 
     @Override
     protected void onViewCreated(Bundle state) {
@@ -151,6 +168,7 @@ public class TranslateFragment extends BaseFragment
             @Override
             public void afterTextChanged(Editable editable) {
                 symbolCounterTextView.setText(getString(R.string.translate_format_counter, editable.length()));
+                validateForm();
             }
         });
         translateInputEditText.addTextChangedListener(new ClearButtonAppearanceDetector(this));
@@ -200,9 +218,10 @@ public class TranslateFragment extends BaseFragment
     }
 
     private void onArgsExists(Bundle args) {
-        currentTranslation = args.getParcelable(TRANSLATION_ARG);
-        languageRepository = LanguageRepository.fromTranslation(currentTranslation);
+        translationRepository = args.getParcelable(TRANSLATION_ARG);
+        if (translationRepository == null) return;
 
+        languageRepository = LanguageRepository.fromTranslation(translationRepository.getTranslation());
         stopTypingDetector.setDetectorActive(false);
 
         SpinnerUtils.setSpinnerSelection(
@@ -215,10 +234,25 @@ public class TranslateFragment extends BaseFragment
                 languageRepository.obtainDestinationIndex(allAvailableLanguagesList)
         );
 
-        translateInputEditText.setText(currentTranslation.getOriginalText());
-        handleTranslationResponse(currentTranslation);
+        translateInputEditText.setText(translationRepository.getTranslation().getOriginalText());
+
+        if (translationRepository.getDictionary() == null) {
+            if(!isDictionary(translationRepository.getTranslation())) return;
+            showSpinner();
+            loadDictionary();
+        } else {
+            setupTranslationAndDictionaryViews();
+        }
 
         stopTypingDetector.setDetectorActive(true);
+    }
+
+    //endregion
+
+    //region setters & getters
+
+    public void setTranslationChangedListener(OnTranslationChangedListener listener) {
+        this.listener = listener;
     }
 
     //endregion
@@ -226,9 +260,9 @@ public class TranslateFragment extends BaseFragment
     //region views animation
 
     private AnimationSet showTranslationViews(boolean isShowingBoth) {
+        AnimationUtils.fadeOut(spinner);
         if (isShowingBoth) alternativeTranslationCardView.setVisibility(View.VISIBLE);
         else alternativeTranslationCardView.setVisibility(View.INVISIBLE);
-        AnimationUtils.fadeOut(spinner);
         return AnimationUtils.fadeIn(translateScrollView);
     }
 
@@ -251,13 +285,13 @@ public class TranslateFragment extends BaseFragment
 
     @OnClick(R.id.translate_action_favorite)
     public void onFavoriteClick(View v) {
-        currentTranslation.switchFavorite();
-        changeFavoriteAction(currentTranslation);
+        translationRepository.getTranslation().switchFavorite();
+        changeFavoriteAction();
 
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                HistorySqlService.update(currentTranslation);
+                HistorySqlService.update(translationRepository.getTranslation());
             }
         });
         t.start();
@@ -265,7 +299,7 @@ public class TranslateFragment extends BaseFragment
 
     @OnClick(R.id.translate_action_copy)
     public void onCopyClick(View v) {
-        ShareUtils.copyToClipboard(currentTranslation.getTranslatedText());
+        ShareUtils.copyToClipboard(translationRepository.getTranslation().getTranslatedText());
 
         Toast
                 .makeText(getContext(), R.string.translate_toast_text_was_copied, Toast.LENGTH_SHORT)
@@ -274,7 +308,9 @@ public class TranslateFragment extends BaseFragment
 
     @OnClick(R.id.translate_action_share)
     public void onShareClick(View v) {
-        startActivity(ShareUtils.shareToAnotherApp(currentTranslation.getTranslatedText()));
+        startActivity(ShareUtils.shareToAnotherApp(
+                translationRepository.getTranslation().getTranslatedText()
+        ));
     }
 
     @OnClick(R.id.translate_clear_button)
@@ -288,17 +324,22 @@ public class TranslateFragment extends BaseFragment
 
     @Override
     public void onStopTyping() {
-        if (TextUtils.isEmpty(translateInputEditText.getText().toString().trim())) return;
+        if (!validateForm()) return;
+        String textToTranslate = translateInputEditText.getText().toString().trim();
+
+        if (TextUtils.isEmpty(textToTranslate)) return;
+
         showSpinner();
 
         activeQuery = translate(
-                translateInputEditText.getText().toString(),
+                textToTranslate,
                 languageRepository.obtainCortege(),
                 new HttpResultListener() {
                     @Override
                     public <T> void onHttpSuccess(T result) {
                         if (result instanceof TranslationModel) {
-                            handleTranslationResponse((TranslationModel) result);
+                            saveTranslationResponse((TranslationModel) result);
+                            loadDictionary();
                         }
                     }
 
@@ -350,55 +391,41 @@ public class TranslateFragment extends BaseFragment
 
     //endregion
 
-    // region http handlers
+    // region http
 
-    private void handleTranslationResponse(TranslationModel translationModel) {
-        translationLanguageHolderTitleTextView.setText(languageRepository.getDestinationLanguage().name());
-        primaryTranslationTextView.setText(translationModel.getTranslatedText());
-
-        currentTranslation = HistorySqlService.saveTranslation(translationModel);
-        changeFavoriteAction(currentTranslation);
-        listener.onTranslationChanged(translationModel);
-
-        if (translateInputEditText.getText().toString().trim().contains(" ")) {
-            showTranslationViews(false);
-        } else {
-            lookup(translationModel.getOriginalText(),
-                    translationModel.getLanguage(),
-                    new HttpResultListener() {
-                        @Override
-                        public <T> void onHttpSuccess(T result) {
-                            if (result instanceof DictionaryModel) {
-                                handleDictionaryResponse((DictionaryModel) result);
-                            }
-                        }
-
-                        @Override
-                        public void onHttpError(HttpError error) {
-                            showTranslationViews(false);
-                        }
-                    });
-        }
+    private void saveTranslationResponse(TranslationModel translationModel) {
+        TranslationModel translation = HistorySqlService.saveTranslation(translationModel);
+        translationRepository.setTranslation(translation);
     }
 
-    private void handleDictionaryResponse(DictionaryModel dictionaryModel) {
-        List<DefinitionDictionaryModel> definitions = dictionaryModel.getDefinition();
-        if (definitions == null || definitions.isEmpty()) {
-            showTranslationViews(false);
+    private void loadDictionary() {
+        TranslationModel translation = translationRepository.getTranslation();
+
+        if (!isDictionary(translation)) {
+            setupTranslationView();
             return;
         }
 
-        List<TranslationDictionaryModel> translations = new ArrayList<>();
+        lookup(translation.getOriginalText(),
+                translation.getLanguage(),
+                new HttpResultListener() {
+                    @Override
+                    public <T> void onHttpSuccess(T result) {
+                        if (result instanceof DictionaryModel) {
+                            saveDictionaryResponse((DictionaryModel) result);
+                            setupTranslationAndDictionaryViews();
+                        }
+                    }
 
-        for (DefinitionDictionaryModel definition: definitions) {
-            translations.addAll(definition.getTranslation());
-        }
+                    @Override
+                    public void onHttpError(HttpError error) {
+                        setupTranslationView();
+                    }
+                });
+    }
 
-        alternativeTranslationAdapter.clear();
-        alternativeTranslationAdapter.addTranslations(translations);
-        recalculateAlternativeTranslationRVHeight();
-
-        showTranslationViews(true);
+    private void saveDictionaryResponse(DictionaryModel dictionaryModel) {
+        translationRepository.setDictionary(dictionaryModel);
     }
 
     //endregion
@@ -414,7 +441,12 @@ public class TranslateFragment extends BaseFragment
     @Override
     public void onDetach() {
         super.onDetach();
+
         if (activeQuery != null && activeQuery.isExecuted()) activeQuery.cancel();
+        if (!translationRepository.isEmpty()) {
+            listener.onTranslationChanged(translationRepository.getTranslation(),
+                    translationRepository.getDictionary());
+        }
     }
 
     //endregion
@@ -422,12 +454,18 @@ public class TranslateFragment extends BaseFragment
     //region utils
 
     private boolean validateForm() {
-        //todo: validate
-        return false;
+        if (translateInputEditText.getEditableText().length() > TRANSLATION_LIMIT) {
+            symbolCounterTextView.setTextColor(redColor);
+            return false;
+        }
+
+        symbolCounterTextView.setTextColor(greyColor);
+        return true;
     }
 
     private void showErrorDialog() {
         AnimationUtils.fadeOut(spinner);
+
         new MaterialDialog.Builder(getActivity())
                 .title(R.string.error_dialog_title)
                 .content(R.string.error_dialog_content)
@@ -435,8 +473,55 @@ public class TranslateFragment extends BaseFragment
                 .show();
     }
 
-    private void changeFavoriteAction(TranslationModel translation) {
-        if (translation.isFavorite()) favoritesActionImageView.setImageResource(R.drawable.ic_favorite_white_24dp);
+    private void setupTranslationView() {
+        TranslationModel translation = translationRepository.getTranslation();
+        if (translation == null) return;
+
+        changeFavoriteAction();
+
+        translationLanguageHolderTitleTextView.setText(languageRepository.getDestinationLanguage().name());
+        primaryTranslationTextView.setText(translation.getTranslatedText());
+        showTranslationViews(false);
+    }
+
+    private void setupTranslationAndDictionaryViews() {
+        TranslationModel translation = translationRepository.getTranslation();
+        if (translation == null) return;
+
+        changeFavoriteAction();
+
+        translationLanguageHolderTitleTextView.setText(languageRepository.getDestinationLanguage().name());
+        primaryTranslationTextView.setText(translation.getTranslatedText());
+
+        List<TranslationDictionaryModel> alternativeTranslations = aggregateAlternativeTranslations();
+        if (alternativeTranslations.isEmpty()) {
+            showTranslationViews(false);
+            return;
+        }
+
+        alternativeTranslationAdapter.clear();
+        alternativeTranslationAdapter.addTranslations(alternativeTranslations);
+        recalculateAlternativeTranslationRVHeight();
+
+        showTranslationViews(true);
+    }
+
+    private List<TranslationDictionaryModel> aggregateAlternativeTranslations() {
+        List<DefinitionDictionaryModel> definitions = translationRepository.getDictionary().getDefinition();
+        List<TranslationDictionaryModel> translations = new ArrayList<>();
+
+        if (definitions == null || definitions.isEmpty()) return translations;
+
+        for (DefinitionDictionaryModel definition : definitions) {
+            translations.addAll(definition.getTranslation());
+        }
+
+        return translations;
+    }
+
+    private void changeFavoriteAction() {
+        if (translationRepository.getTranslation().isFavorite())
+            favoritesActionImageView.setImageResource(R.drawable.ic_favorite_white_24dp);
         else favoritesActionImageView.setImageResource(R.drawable.ic_favorite_border_white_24dp);
     }
 
@@ -446,6 +531,10 @@ public class TranslateFragment extends BaseFragment
         ViewGroup.LayoutParams params = alternativeTranslationRecyclerView.getLayoutParams();
         params.height = count * ALTERNATIVE_TRANSLATION_VIEW_HEIGHT;
         alternativeTranslationRecyclerView.setLayoutParams(params);
+    }
+
+    private boolean isDictionary(TranslationModel translationModel) {
+        return !translateInputEditText.getEditableText().toString().trim().contains(SPACE);
     }
 
     //endregion

@@ -8,5 +8,9 @@ import sasd97.github.com.translator.utils.Dimens;
 
 public interface ViewConstants {
 
+    int TRANSLATION_LIMIT = 200;
     int ALTERNATIVE_TRANSLATION_VIEW_HEIGHT = Dimens.dpToPx(60);
+
+    String SPACE = " ";
+
 }

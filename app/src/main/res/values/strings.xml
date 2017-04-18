@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Sophia</string>
     <string name="all_search">Type to start search</string>
-    <string name="all_please_wait">Please wait while the data is loading...</string>
+    <string name="all_please_wait">Please wait while the data is loading&#8230;</string>
 
     <!-- Region Error dialog -->
 

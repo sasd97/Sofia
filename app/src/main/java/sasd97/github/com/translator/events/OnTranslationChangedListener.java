@@ -1,5 +1,6 @@
 package sasd97.github.com.translator.events;
 
+import sasd97.github.com.translator.models.Dictionary.DictionaryModel;
 import sasd97.github.com.translator.models.TranslationModel;
 
 /**
@@ -13,5 +14,5 @@ public interface OnTranslationChangedListener {
     int HISTORY_FRAGMENT = 2;
 
     void onFragmentNeedToBeSwitched(int fragment);
-    void onTranslationChanged(TranslationModel translation);
+    void onTranslationChanged(TranslationModel translation, DictionaryModel dictionary);
 }

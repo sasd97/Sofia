@@ -1,5 +1,8 @@
 package sasd97.github.com.translator.models.Dictionary;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -9,7 +12,7 @@ import java.util.List;
  * Created by alexander on 13/04/2017.
  */
 
-public class TranslationDictionaryModel {
+public class TranslationDictionaryModel implements Parcelable {
 
     @SerializedName("text")
     @Expose
@@ -30,6 +33,30 @@ public class TranslationDictionaryModel {
     @SerializedName("ex")
     @Expose
     private List<ExampleDictionaryModel> examples;
+
+    public TranslationDictionaryModel() {
+
+    }
+
+    protected TranslationDictionaryModel(Parcel in) {
+        text = in.readString();
+        partOfSpeech = in.readString();
+        synonyms = in.createTypedArrayList(TextDictionaryModel.CREATOR);
+        mean = in.createTypedArrayList(TextDictionaryModel.CREATOR);
+        examples = in.createTypedArrayList(ExampleDictionaryModel.CREATOR);
+    }
+
+    public static final Creator<TranslationDictionaryModel> CREATOR = new Creator<TranslationDictionaryModel>() {
+        @Override
+        public TranslationDictionaryModel createFromParcel(Parcel in) {
+            return new TranslationDictionaryModel(in);
+        }
+
+        @Override
+        public TranslationDictionaryModel[] newArray(int size) {
+            return new TranslationDictionaryModel[size];
+        }
+    };
 
     public String getText() {
         return text;
@@ -69,6 +96,20 @@ public class TranslationDictionaryModel {
 
     public void setExamples(List<ExampleDictionaryModel> examples) {
         this.examples = examples;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(text);
+        dest.writeString(partOfSpeech);
+        dest.writeTypedList(synonyms);
+        dest.writeTypedList(mean);
+        dest.writeTypedList(examples);
     }
 
     @Override

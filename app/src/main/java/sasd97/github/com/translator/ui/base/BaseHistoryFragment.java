@@ -3,8 +3,8 @@ package sasd97.github.com.translator.ui.base;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
 import android.view.View;
-import android.widget.EditText;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -33,8 +33,10 @@ public abstract class BaseHistoryFragment extends BaseFragment
     protected WeakHandler weakHandler;
     protected List<TranslationModel> translations;
 
-    @BindView(R.id.search_clear_button) public View searchClearButton;
-    @BindView(R.id.search_input_edittext) public EditText searchInputEditText;
+    @BindView(R.id.search_clear_button)
+    public View searchClearButton;
+    @BindView(R.id.search_input_edittext)
+    public TextInputEditText searchInputEditText;
 
     protected final Runnable filterHistory = new Runnable() {
         @Override
@@ -44,7 +46,7 @@ public abstract class BaseHistoryFragment extends BaseFragment
             List<TranslationModel> filteredTranslations = new ArrayList<>();
             String query = searchQuery.toLowerCase();
 
-            for (TranslationModel translation: translations) {
+            for (TranslationModel translation : translations) {
                 if (translation.getOriginalText().toLowerCase().contains(query) ||
                         translation.getTranslatedText().toLowerCase().contains(query)) {
                     filteredTranslations.add(translation);
@@ -123,6 +125,7 @@ public abstract class BaseHistoryFragment extends BaseFragment
     }
 
     public abstract void onObtain(List<TranslationModel> translations);
+
     public abstract void onFilter(List<TranslationModel> translations);
 
     @Override

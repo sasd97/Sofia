@@ -117,13 +117,13 @@ public class HistoryFragment extends BaseHistoryFragment
         translations.clear();
         historyAdapter.removeAllHistories();
         clearAllFab.hide();
+        translationChangedListener.onTranslationChanged(null, null);
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 HistorySqlService.deleteAll();
             }
         });
-
         t.start();
     }
 

@@ -1,3 +1,5 @@
 # Sofia
+Test task in Yandex Mobile Development School.
 
-App created for Yandex Mobile Departemnt enrolled contest.
+## Compiled app
+You can find a built version of app in builds folder.

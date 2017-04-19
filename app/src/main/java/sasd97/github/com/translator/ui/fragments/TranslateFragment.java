@@ -266,7 +266,7 @@ public class TranslateFragment extends BaseFragment
     private AnimationSet showTranslationViews(boolean isShowingBoth) {
         AnimationUtils.fadeOut(spinner);
         if (isShowingBoth) alternativeTranslationCardView.setVisibility(View.VISIBLE);
-        else alternativeTranslationCardView.setVisibility(View.INVISIBLE);
+        else alternativeTranslationCardView.setVisibility(View.GONE);
         primaryTranslationTextView.setVisibility(View.VISIBLE);
         return AnimationUtils.fadeIn(translateScrollView);
     }
@@ -283,9 +283,13 @@ public class TranslateFragment extends BaseFragment
     @OnClick(R.id.translate_swap_languages)
     public void onSwapLanguagesClick(View v) {
         if (!languageRepository.swapLanguages()) return;
+
         int tempPosition = destinationLanguageSpinner.getSelectedItemPosition() + 1;
         destinationLanguageSpinner.setSelection(targetLanguageSpinner.getSelectedItemPosition() - 1);
         targetLanguageSpinner.setSelection(tempPosition);
+
+        if (translationRepository.getTranslation() == null) return;
+        translateInputEditText.setText(translationRepository.getTranslation().getTranslatedText());
     }
 
     @OnClick(R.id.translate_action_favorite)

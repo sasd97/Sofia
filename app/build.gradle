@@ -8,8 +8,8 @@ android {
         applicationId "sasd97.github.com.translator"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 69
-        versionName "0.1.1"
+        versionCode 73
+        versionName "0.1.5"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

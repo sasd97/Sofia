@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">Sophia</string>
+    <string name="app_name" translatable="false">Sophia</string>
     <string name="all_search">Type to start search</string>
     <string name="all_please_wait">Please wait while the data is loading&#8230;</string>
 
     <!-- Region Error dialog -->
 
     <string name="error_dialog_title">Error</string>
-    <string name="error_dialog_content">Content</string>
+    <string name="error_dialog_content">There was an error while obtaining your translation. Please retry later.</string>
     <string name="error_dialog_ok">OK</string>
 
     <!--Endregion -->
@@ -64,13 +64,13 @@
     <!-- Region Translate Fragment -->
 
     <string name="translate_edit_text_hint">Type text you want to translate</string>
-    <string name="translate_primary_translation_title_holder">Main translation language</string>
-    <string name="translate_primary_translation_holder">Holder</string>
+    <string name="translate_primary_translation_title_holder" translatable="false">Main translation language</string>
+    <string name="translate_primary_translation_holder" translatable="false">Holder</string>
     <string name="translate_toast_text_was_copied">Text copied to clipboard</string>
     <string name="translate_alternative_translation_title">Alternative translations</string>
     <string name="translate_action_share_via">Share via</string>
-    <string name="translate_empty_counter">0/200</string>
-    <string name="translate_format_counter">%1$d/200</string>
+    <string name="translate_empty_counter" translatable="false">0/200</string>
+    <string name="translate_format_counter" translatable="false">%1$d/200</string>
 
     <!-- Endregion -->
 </resources>

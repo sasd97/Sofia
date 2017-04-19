@@ -1,4 +1,4 @@
-# Sofia
+# Sophia
 Test task in Yandex Mobile Development School.
 
 ## Compiled app
